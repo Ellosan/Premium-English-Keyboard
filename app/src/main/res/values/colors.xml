@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="keyboard_background">#FF14110F</color>
+    <color name="status_background">#FF1D1916</color>
+    <color name="key_face">#FF2A2522</color>
+    <color name="key_face_pressed">#FF3C342E</color>
+    <color name="key_modifier">#FF1F1B19</color>
+    <color name="key_modifier_pressed">#FF302A26</color>
+    <color name="key_text">#FFF2EAD9</color>
+    <color name="key_accent">#FFC8A44B</color>
+    <color name="key_accent_pressed">#FFE0BC63</color>
+    <color name="key_accent_text">#FF14110F</color>
+    <color name="accent">#FFC8A44B</color>
+    <color name="preview_text">#FFEDE0C8</color>
+    <color name="chip_face">#FF2A2522</color>
+    <color name="screen_background">#FF14110F</color>
+    <color name="body_text">#FFEDE4D6</color>
+    <color name="muted_text">#FF9C8F7C</color>
+</resources>

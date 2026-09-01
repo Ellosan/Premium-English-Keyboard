@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Premium English</string>
+    <string name="ime_name">Premium English Keyboard</string>
+    <string name="subtype_english">English (Premium)</string>
+
+    <string name="headline">Premium English</string>
+    <string name="subhead">A keyboard of distinction. Type as you always have; it comes out considerably better.</string>
+
+    <string name="setup_title">Setup</string>
+    <string name="enable_keyboard">1 · Enable the keyboard</string>
+    <string name="choose_keyboard">2 · Select it as your input method</string>
+
+    <string name="tier_title">Service tier</string>
+    <string name="tier_refined">Refined</string>
+    <string name="tier_refined_desc">A lift in register. Your pronouns are left in peace.</string>
+    <string name="tier_courtly">Courtly</string>
+    <string name="tier_courtly_desc">Thou and thee, -est and -eth, and the full archaic wardrobe.</string>
+    <string name="tier_sovereign">Sovereign</string>
+    <string name="tier_sovereign_desc">Everything above, plus dropped auxiliaries and considerable pomp.</string>
+
+    <string name="options_title">Options</string>
+    <string name="option_auto">Translate as I type</string>
+    <string name="option_flourish">Ceremonial flourishes at the end of a sentence</string>
+    <string name="option_olde">Ye olde spellings (Sovereign only)</string>
+
+    <string name="try_title">Try it</string>
+    <string name="try_hint">Type something modern…</string>
+    <string name="sample_default">hello, how are you? i think you look great today.</string>
+</resources>

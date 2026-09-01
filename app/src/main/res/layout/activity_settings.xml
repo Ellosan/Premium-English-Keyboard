@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/screen_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/headline"
+            android:textColor="@color/accent"
+            android:textSize="30sp"
+            android:fontFamily="serif" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/subhead"
+            android:textColor="@color/muted_text"
+            android:textSize="14sp"
+            android:fontFamily="serif" />
+
+        <!-- Setup -->
+        <TextView
+            style="@style/SectionHeading"
+            android:text="@string/setup_title" />
+
+        <Button
+            android:id="@+id/enable_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/enable_keyboard" />
+
+        <Button
+            android:id="@+id/choose_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/choose_keyboard" />
+
+        <!-- Tier -->
+        <TextView
+            style="@style/SectionHeading"
+            android:text="@string/tier_title" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_background"
+            android:padding="12dp">
+
+            <RadioGroup
+                android:id="@+id/tier_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/tier_refined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tier_refined"
+                    android:textColor="@color/body_text" />
+
+                <TextView
+                    style="@style/TierCaption"
+                    android:text="@string/tier_refined_desc" />
+
+                <RadioButton
+                    android:id="@+id/tier_courtly"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tier_courtly"
+                    android:textColor="@color/body_text" />
+
+                <TextView
+                    style="@style/TierCaption"
+                    android:text="@string/tier_courtly_desc" />
+
+                <RadioButton
+                    android:id="@+id/tier_sovereign"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tier_sovereign"
+                    android:textColor="@color/body_text" />
+
+                <TextView
+                    style="@style/TierCaption"
+                    android:text="@string/tier_sovereign_desc" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <!-- Options -->
+        <TextView
+            style="@style/SectionHeading"
+            android:text="@string/options_title" />
+
+        <Switch
+            android:id="@+id/switch_auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/option_auto"
+            android:textColor="@color/body_text" />
+
+        <Switch
+            android:id="@+id/switch_flourish"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/option_flourish"
+            android:textColor="@color/body_text" />
+
+        <Switch
+            android:id="@+id/switch_olde"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/option_olde"
+            android:textColor="@color/body_text" />
+
+        <!-- Try it -->
+        <TextView
+            style="@style/SectionHeading"
+            android:text="@string/try_title" />
+
+        <EditText
+            android:id="@+id/sample_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/try_hint"
+            android:inputType="textMultiLine|textCapSentences"
+            android:minLines="2"
+            android:gravity="top"
+            android:textColor="@color/body_text"
+            android:textColorHint="@color/muted_text" />
+
+        <TextView
+            android:id="@+id/sample_output"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/card_background"
+            android:padding="14dp"
+            android:textColor="@color/accent"
+            android:textSize="17sp"
+            android:fontFamily="serif"
+            android:textStyle="italic" />
+
+    </LinearLayout>
+</ScrollView>
