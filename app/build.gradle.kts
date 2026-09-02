@@ -30,8 +30,16 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
+    // Runs the keyboard view and settings screen on the JVM, so the parts that
+    // need a real Android runtime are still covered by the test suite.
+    testImplementation("org.robolectric:robolectric:4.13")
 }

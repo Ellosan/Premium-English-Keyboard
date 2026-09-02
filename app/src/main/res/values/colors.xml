@@ -13,6 +13,7 @@
     <color name="accent">#FFC8A44B</color>
     <color name="preview_text">#FFEDE0C8</color>
     <color name="chip_face">#FF2A2522</color>
+    <color name="key_preview">#FF3C342E</color>
     <color name="screen_background">#FF14110F</color>
     <color name="body_text">#FFEDE4D6</color>
     <color name="muted_text">#FF9C8F7C</color>

@@ -2,42 +2,53 @@ package com.premiumenglish.keyboard
 
 import android.content.Intent
 import android.inputmethodservice.InputMethodService
+import android.os.Build
 import android.text.InputType
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 
 /**
- * The keyboard service.
+ * The keyboard service: the Android half of the keyboard.
  *
- * Everything typed since the last full stop is held in [pending] in plain
- * modern English. After each keystroke that segment is translated and written
- * back over itself, so the field always shows Premium English while the buffer
- * remembers what was actually typed. Keeping the original around is what makes
- * backspace, and translations that depend on later words, work at all: "i" is
- * nothing on its own, "i think" is "methinks".
+ * The typing itself lives in [SegmentBuffer]. This class connects that buffer
+ * to the text field, keeps track of where the cursor is, and drives the keys.
  */
 class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
 
-    private companion object {
-        /** Past this many characters the segment is cut loose, so that a long
-         *  message does not mean rewriting a paragraph on every keystroke. */
-        const val MAX_SEGMENT = 240
-    }
-
     private lateinit var prefs: Prefs
     private var panel: KeyboardPanel? = null
-
-    private val pending = StringBuilder()
-
-    /** How many characters of the field currently belong to [pending]. */
-    private var shownLength = 0
 
     private var cursor = 0
     private var expectedCursor = -1
 
     /** False in password, email and URL fields, where nobody wants ceremony. */
     private var fieldAllowsTranslation = true
+
+    /** Writes the buffer's edits into the field, keeping the cursor in step. */
+    private val target = object : TextTarget {
+        override fun replace(before: Int, text: String) {
+            val ic = currentInputConnection ?: return
+            ic.beginBatchEdit()
+            if (before > 0) ic.deleteSurroundingText(before, 0)
+            if (text.isNotEmpty()) ic.commitText(text, 1)
+            ic.endBatchEdit()
+            cursor = cursor - before + text.length
+            expectedCursor = cursor
+        }
+
+        override fun textBeforeCursor(count: Int): CharSequence =
+            currentInputConnection?.getTextBeforeCursor(count, 0) ?: ""
+
+        override fun sendBackspace() {
+            sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL)
+        }
+    }
+
+    private val buffer = SegmentBuffer(target) {
+        SegmentSettings(prefs.options(), translationActive(), prefs.doubleSpacePeriod)
+    }
 
     // ------------------------------------------------------------------ lifecycle
 
@@ -48,6 +59,7 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
 
     override fun onCreateInputView(): View {
         val view = KeyboardPanel(this, this)
+        view.setLayoutOptions(prefs.layout())
         panel = view
         return view
     }
@@ -56,22 +68,28 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
         super.onStartInput(info, restarting)
         resetSegment()
         fieldAllowsTranslation = info == null || isTranslatableField(info)
-        cursor = info?.initialSelEnd ?: 0
+        cursor = info?.initialSelEnd?.coerceAtLeast(0) ?: 0
     }
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
+        // Settings may have changed while the keyboard was away.
         panel?.apply {
+            setLayoutOptions(prefs.layout())
             setTier(prefs.tier)
             setTranslating(translationActive())
-            setPreview("")
+            setSource("")
         }
+        updateAutoShift()
     }
 
     override fun onFinishInput() {
         super.onFinishInput()
         resetSegment()
     }
+
+    /** Never take over the whole screen in landscape; the field stays visible. */
+    override fun onEvaluateFullscreenMode(): Boolean = false
 
     override fun onUpdateSelection(
         oldSelStart: Int, oldSelEnd: Int,
@@ -85,6 +103,7 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
         if (expectedCursor >= 0 && newSelEnd != expectedCursor) resetSegment()
         cursor = newSelEnd
         expectedCursor = -1
+        updateAutoShift()
     }
 
     private fun isTranslatableField(info: EditorInfo): Boolean {
@@ -107,31 +126,22 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
     // ------------------------------------------------------------------ keys
 
     override fun onChar(c: Char) {
-        if (!translationActive()) {
-            commitPlain(c.toString())
-            return
-        }
-        pending.append(c)
-        renderSegment()
-        if (c == '.' || c == '!' || c == '?' || pending.length >= MAX_SEGMENT) closeSegment()
+        buffer.type(c)
+        afterInput()
+    }
+
+    override fun onText(text: String) {
+        buffer.type(text)
+        afterInput()
     }
 
     override fun onBackspace() {
-        if (pending.isEmpty()) {
-            sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL)
-            return
-        }
-        pending.setLength(pending.length - 1)
-        if (pending.isEmpty()) {
-            writeSegment("")
-            resetSegment()
-        } else {
-            renderSegment()
-        }
+        buffer.backspace()
+        afterInput()
     }
 
     override fun onEnter() {
-        closeSegment()
+        buffer.close()
         val editor = currentInputEditorInfo
         val action = editor?.imeOptions?.and(EditorInfo.IME_MASK_ACTION) ?: EditorInfo.IME_ACTION_NONE
         val suppressed = (editor?.imeOptions ?: 0) and EditorInfo.IME_FLAG_NO_ENTER_ACTION != 0
@@ -140,6 +150,12 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
         } else {
             sendDownUpKeyEvents(KeyEvent.KEYCODE_ENTER)
         }
+        afterInput()
+    }
+
+    private fun afterInput() {
+        panel?.setSource(buffer.source)
+        updateAutoShift()
     }
 
     // ------------------------------------------------------------------ status bar
@@ -152,16 +168,22 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
         }
         panel?.setTier(prefs.tier)
         // Re-translate what is already on screen at the new tier.
-        if (pending.isNotEmpty()) renderSegment()
+        if (!buffer.isEmpty) {
+            buffer.retranslate()
+            panel?.setSource(buffer.source)
+        }
     }
 
     override fun onToggleTranslation() {
         prefs.autoTranslate = !prefs.autoTranslate
-        if (!prefs.autoTranslate) {
-            // Leave the premium text standing, but stop tracking it.
-            resetSegment()
-        }
+        // Leave the premium text standing, but stop tracking it.
+        if (!prefs.autoTranslate) resetSegment()
         panel?.setTranslating(translationActive())
+    }
+
+    override fun onRevert() {
+        buffer.revert()
+        panel?.setSource("")
     }
 
     override fun onOpenSettings() {
@@ -170,44 +192,20 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
         startActivity(intent)
     }
 
-    // ------------------------------------------------------------------ the segment
-
-    private fun renderSegment() {
-        val translated = PremiumEnglish.translateLive(pending.toString(), prefs.options())
-        writeSegment(translated)
-        panel?.setPreview(translated.trim())
+    override fun onSwitchKeyboard() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && switchToNextInputMethod(false)) return
+        (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).showInputMethodPicker()
     }
 
-    /** Swaps the on-screen segment for [text] in a single edit. */
-    private fun writeSegment(text: String) {
-        val ic = currentInputConnection ?: return
-        ic.beginBatchEdit()
-        if (shownLength > 0) ic.deleteSurroundingText(shownLength, 0)
-        if (text.isNotEmpty()) ic.commitText(text, 1)
-        ic.endBatchEdit()
-        expectedCursor = cursor - shownLength + text.length
-        cursor = expectedCursor
-        shownLength = text.length
-    }
-
-    private fun commitPlain(text: String) {
-        val ic = currentInputConnection ?: return
-        ic.commitText(text, 1)
-        cursor += text.length
-        expectedCursor = cursor
-    }
-
-    /** Finishes the current thought: the text stays, the buffer starts over. */
-    private fun closeSegment() {
-        pending.setLength(0)
-        shownLength = 0
-        panel?.setPreview("")
-    }
+    // ------------------------------------------------------------------ helpers
 
     private fun resetSegment() {
-        pending.setLength(0)
-        shownLength = 0
+        buffer.close()
         expectedCursor = -1
-        panel?.setPreview("")
+        panel?.setSource("")
+    }
+
+    private fun updateAutoShift() {
+        panel?.setAutoShift(prefs.autoCapitalize && buffer.atSentenceStart())
     }
 }

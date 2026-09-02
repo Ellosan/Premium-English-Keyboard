@@ -66,15 +66,25 @@ object PremiumEnglish {
         val out = HashSet<String>()
         for (tier in TIER_REFINED..TIER_SOVEREIGN) {
             for ((from, to) in Lexicon.WORDS[tier].orEmpty()) {
-                if (from.substringBefore(' ') in Lexicon.VERBS || from in out) {
-                    out.add(to.substringBefore(' '))
-                }
+                if (from.substringBefore(' ') !in Lexicon.VERBS && from !in out) continue
+                val head = to.substringBefore(' ')
+                // "please" becomes "if you please", and "if" is emphatically not
+                // a verb. Only take a head word that could be one.
+                if (head in FUNCTION_WORDS) continue
+                out.add(head)
             }
         }
         out
     }
 
-    private fun isVerb(word: String): Boolean = word in Lexicon.VERBS || word in DERIVED_VERBS
+    /** Words that can never head a verb phrase. */
+    private val FUNCTION_WORDS: Set<String> by lazy {
+        Lexicon.DETERMINERS + Lexicon.PREPOSITIONS + Lexicon.INTERPOSED_ADVERBS +
+            setOf("if", "when", "while", "whilst", "that", "so", "thus", "there", "here")
+    }
+
+    private fun isVerb(word: String): Boolean =
+        word in Lexicon.VERBS || word in DERIVED_VERBS || word in Lexicon.PAST_VERBS
 
     private val resolvedWordCache = HashMap<Int, Map<String, String>>()
     private val resolvedPhraseCache = HashMap<Int, Map<String, String>>()
@@ -117,7 +127,12 @@ object PremiumEnglish {
         if (raw.isEmpty()) return raw
         val last = raw[raw.length - 1]
         if (!isWordChar(last)) {
-            return translate(raw, options, finished = last == '.' || last == '!' || last == '?')
+            // A sentence is finished even when a space has been typed after it.
+            val terminal = raw.trimEnd().lastOrNull()
+            return translate(
+                raw, options,
+                finished = terminal == '.' || terminal == '!' || terminal == '?'
+            )
         }
         var cut = raw.length
         while (cut > 0 && isWordChar(raw[cut - 1])) cut--
@@ -295,9 +310,9 @@ object PremiumEnglish {
         for (p in idx.indices) {
             val t = toks[idx[p]]
             if (t.locked) continue
-            val prev = if (p > 0) toks[idx[p - 1]].text else null
+            val next = if (p + 1 < idx.size) toks[idx[p + 1]].text else null
             when (t.text) {
-                "you" -> t.text = if (isObjectPosition(prev)) "thee" else "thou"
+                "you" -> t.text = if (isObjectPosition(toks, idx, p, next)) "thee" else "thou"
                 // thy/thine is decided later, once we know what word follows.
                 "your" -> t.text = "thy"
                 "yours" -> t.text = "thine"
@@ -306,14 +321,38 @@ object PremiumEnglish {
         }
     }
 
-    /** "you" is an object after a preposition or a plain transitive verb. */
-    private fun isObjectPosition(prev: String?): Boolean {
-        if (prev == null) return false
+    /**
+     * Decides whether "you" is a subject (thou) or an object (thee) from the
+     * words on either side of it.
+     */
+    private fun isObjectPosition(toks: List<Tok>, idx: List<Int>, p: Int, next: String?): Boolean {
+        // A finite auxiliary after it means "you" is the subject of a clause:
+        // "I can't believe you did that", "I think you should go".
+        if (next != null && next in Lexicon.AUXILIARIES) return false
+
+        val prev = governingWord(toks, idx, p) ?: return false
         if (prev in Lexicon.PREPOSITIONS) return true
-        // "do you know" is a question: "you" is still the subject.
+        // "do you know" is a question, and "you" is still its subject.
         if (prev in Lexicon.AUXILIARIES) return false
-        return isVerb(prev)
+        if (isVerb(prev)) return true
+        // "and you know the rest" — a bare verb after it still makes it a subject.
+        return false
     }
+
+    /**
+     * The word that governs the pronoun at [p], looking past a coordination:
+     * in "give it to me and you", the pronoun is governed by "to", not "and".
+     */
+    private fun governingWord(toks: List<Tok>, idx: List<Int>, p: Int): String? {
+        var q = p - 1
+        while (q >= 0 && toks[idx[q]].text in CONJUNCTIONS) {
+            // Step over the conjunction and the element it coordinates with.
+            q -= 2
+        }
+        return if (q >= 0) toks[idx[q]].text else null
+    }
+
+    private val CONJUNCTIONS = setOf("and", "or", "nor")
 
     private fun startsWithVowelSound(next: String?): Boolean {
         if (next.isNullOrEmpty()) return false
@@ -465,7 +504,7 @@ object PremiumEnglish {
             val t = toks[idx[p]]
             val w = t.text
             if (w.length < 3 || !w.endsWith("s")) continue
-            if (w in Lexicon.NOT_ETH) continue
+            if (w in Lexicon.NEVER_ETH) continue
 
             val prevTok = toks[idx[p - 1]]
             val prev = prevTok.text
@@ -481,6 +520,19 @@ object PremiumEnglish {
 
             t.text = thirdPerson(base)
         }
+    }
+
+    /**
+     * True when the word in front of a verb is plainly a third-person singular
+     * subject: a pronoun like "he", a proper noun, or a determiner and a noun
+     * ("my mother works", "the dog runs").
+     */
+    private fun subjectIsThirdSingular(toks: List<Tok>, idx: List<Int>, p: Int): Boolean {
+        val prevTok = toks[idx[p - 1]]
+        if (prevTok.text in Lexicon.THIRD_SINGULAR_SUBJECTS) return true
+        if (p - 1 > 0 && prevTok.caps == 1) return true
+        if (p >= 2 && toks[idx[p - 2]].text in Lexicon.DETERMINERS && !isVerb(prevTok.text)) return true
+        return false
     }
 
     /** Finds the base verb behind an -s form, or null if there isn't a known one. */

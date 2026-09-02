@@ -99,6 +99,54 @@
             </RadioGroup>
         </LinearLayout>
 
+        <!-- Size -->
+        <TextView
+            style="@style/SectionHeading"
+            android:text="@string/size_title" />
+
+        <TextView
+            android:id="@+id/size_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/body_text"
+            android:textSize="15sp" />
+
+        <SeekBar
+            android:id="@+id/size_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" />
+
+        <!-- Keyboard behaviour -->
+        <TextView
+            style="@style/SectionHeading"
+            android:text="@string/keyboard_title" />
+
+        <Switch
+            android:id="@+id/switch_number_row"
+            style="@style/OptionSwitch"
+            android:text="@string/option_number_row" />
+
+        <Switch
+            android:id="@+id/switch_auto_caps"
+            style="@style/OptionSwitch"
+            android:text="@string/option_auto_caps" />
+
+        <Switch
+            android:id="@+id/switch_double_space"
+            style="@style/OptionSwitch"
+            android:text="@string/option_double_space" />
+
+        <Switch
+            android:id="@+id/switch_key_preview"
+            style="@style/OptionSwitch"
+            android:text="@string/option_key_preview" />
+
+        <Switch
+            android:id="@+id/switch_vibrate"
+            style="@style/OptionSwitch"
+            android:text="@string/option_vibrate" />
+
         <!-- Options -->
         <TextView
             style="@style/SectionHeading"
@@ -106,26 +154,18 @@
 
         <Switch
             android:id="@+id/switch_auto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/option_auto"
-            android:textColor="@color/body_text" />
+            style="@style/OptionSwitch"
+            android:text="@string/option_auto" />
 
         <Switch
             android:id="@+id/switch_flourish"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/option_flourish"
-            android:textColor="@color/body_text" />
+            style="@style/OptionSwitch"
+            android:text="@string/option_flourish" />
 
         <Switch
             android:id="@+id/switch_olde"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/option_olde"
-            android:textColor="@color/body_text" />
+            style="@style/OptionSwitch"
+            android:text="@string/option_olde" />
 
         <!-- Try it -->
         <TextView
@@ -144,6 +184,15 @@
             android:textColorHint="@color/muted_text" />
 
         <TextView
+            android:id="@+id/sample_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/try_note"
+            android:textColor="@color/muted_text"
+            android:textSize="13sp" />
+
+        <TextView
             android:id="@+id/sample_output"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -154,6 +203,13 @@
             android:textSize="17sp"
             android:fontFamily="serif"
             android:textStyle="italic" />
+
+        <FrameLayout
+            android:id="@+id/preview_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="8dp" />
 
     </LinearLayout>
 </ScrollView>

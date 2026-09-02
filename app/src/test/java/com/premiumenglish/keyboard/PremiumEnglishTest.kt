@@ -1,6 +1,7 @@
 package com.premiumenglish.keyboard
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -31,6 +32,34 @@ class PremiumEnglishTest {
     fun `phrases beat the individual words inside them`() {
         assertEquals("I thank thee most heartily", courtly("thank you very much"))
         assertEquals("Methinks so", courtly("i think so"))
+    }
+
+    @Test
+    fun `the refined tier never turns archaic`() {
+        // Refined is a lift in register, not a costume: anything below belongs
+        // to Courtly and above.
+        val archaic = listOf(
+            "thou", "thee", "thy", "thine", "hath", "dost", "doth", "hast",
+            "methinks", "verily", "prithee", "forsooth", "nay", "aye", "anon",
+            "mayhap", "ere", "oft", "eth "
+        )
+        val sentences = listOf(
+            "hello, how are you? i think you look great today",
+            "i don't know what you want, but please tell me",
+            "he runs to the shop every morning and buys a beer",
+            "no way, i have to go home right now",
+            "thanks a lot, see you later. oh my god, what time is it?",
+            "she says it seems fine, anyway i guess we will figure out something"
+        )
+        for (sentence in sentences) {
+            val out = PremiumEnglish.translate(sentence, refined, finished = true).lowercase()
+            for (word in archaic) {
+                assertFalse(
+                    "refined output \"$out\" should not contain \"$word\"",
+                    Regex("\\b" + Regex.escape(word.trim()) + "\\b").containsMatchIn(out)
+                )
+            }
+        }
     }
 
     // ------------------------------------------------------------------ pronouns
@@ -82,6 +111,38 @@ class PremiumEnglishTest {
         assertEquals("He teacheth", courtly("he teaches"))
         assertEquals("Thou singest", courtly("you sing"))
         assertEquals("Thou cherishest", courtly("you love"))
+    }
+
+    @Test
+    fun `you before a finite auxiliary is a subject`() {
+        // "believe" is a verb, but "you" belongs to the clause after it.
+        assertEquals("I can not believe thou didst that", courtly("i can't believe you did that"))
+        assertEquals("If thou hast need of aid", courtly("if you need help"))
+    }
+
+    @Test
+    fun `a coordinated pronoun takes its case from the governing word`() {
+        assertEquals("This is for thee and me", courtly("this is for you and me"))
+        assertEquals("Grant it to me and thee", courtly("give it to me and you"))
+    }
+
+    @Test
+    fun `-eth reaches subjects that are not pronouns`() {
+        assertEquals("He playeth football", courtly("he plays football"))
+        assertEquals("My mother worketh", courtly("my mother works"))
+        assertEquals("He lieth", courtly("he lies"))
+    }
+
+    @Test
+    fun `plural nouns are still spared`() {
+        assertEquals("Goodly times", courtly("good times"))
+        assertEquals("The matters I procure", courtly("the things i get"))
+    }
+
+    @Test
+    fun `most stays a superlative`() {
+        assertEquals("She said the most fair matter", courtly("she said the most beautiful thing"))
+        assertEquals("The water is exceeding cold", courtly("the water is very cold"))
     }
 
     // ------------------------------------------------------------------ sovereign

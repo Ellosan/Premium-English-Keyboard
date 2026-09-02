@@ -19,12 +19,23 @@
     <string name="tier_sovereign">Sovereign</string>
     <string name="tier_sovereign_desc">Everything above, plus dropped auxiliaries and considerable pomp.</string>
 
-    <string name="options_title">Options</string>
+    <string name="size_title">Keyboard size</string>
+    <string name="size_value">Size: %1$s</string>
+
+    <string name="keyboard_title">Keyboard</string>
+    <string name="option_number_row">Number row</string>
+    <string name="option_vibrate">Vibrate on keypress</string>
+    <string name="option_key_preview">Show the key you pressed</string>
+    <string name="option_auto_caps">Capitalise the start of sentences</string>
+    <string name="option_double_space">Double-space inserts a full stop</string>
+
+    <string name="options_title">Translation</string>
     <string name="option_auto">Translate as I type</string>
     <string name="option_flourish">Ceremonial flourishes at the end of a sentence</string>
     <string name="option_olde">Ye olde spellings (Sovereign only)</string>
 
     <string name="try_title">Try it</string>
+    <string name="try_note">This is the real keyboard. Hold a letter for the digit or symbol printed on it.</string>
     <string name="try_hint">Type something modern…</string>
     <string name="sample_default">hello, how are you? i think you look great today.</string>
 </resources>

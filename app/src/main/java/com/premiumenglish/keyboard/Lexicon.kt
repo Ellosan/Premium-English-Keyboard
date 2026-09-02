@@ -113,16 +113,14 @@ object Lexicon {
         right now = this very instant
         of course = but naturally
         no problem = it is nothing
-        i think = methinks
-        i thought = methought
-        it seems = meseems
-        have to = must needs
-        has to = must needs
-        got to = must needs
-        need to = must needs
+        have to = must
+        has to = must
+        got to = must
+        need to = must
         want to = wish to
-        figure out = divine
+        figure out = determine
         find out = discover
+        get home = return home
         see you later = until we meet again
         see you soon = until we meet again
         talk to you later = we shall speak again
@@ -133,7 +131,7 @@ object Lexicon {
         hang out = keep company
         take care = keep well
         good luck = may fortune favour you
-        happy birthday = joyous natal day
+        happy birthday = many happy returns
         in a bit = shortly
         for real = in earnest
         big deal = matter of great weight
@@ -142,20 +140,35 @@ object Lexicon {
         let me know = send me word
         text me = send me word
         call me = summon me
-        check out = behold
-        look at = behold
+        check out = examine
+        look at = observe
         shut up = hold your tongue
-        hold on = hold, I pray
+        hold on = one moment
         i guess = I suppose
-        oh my god = by my troth
+        oh my god = good heavens
         what the hell = what the devil
-        no way = nay, never
+        no way = out of the question
         """
     )
 
     private val PHRASES_2 = pairs(
         """
         good morning = good morrow
+        i think = methinks
+        i thought = methought
+        it seems = meseems
+        i do not think so = methinks not
+        have to = must needs
+        has to = must needs
+        got to = must needs
+        need to = must needs
+        hold on = hold, I pray
+        oh my god = by my troth
+        no way = nay, never
+        happy birthday = joyous natal day
+        check out = behold
+        look at = behold
+        figure out = divine
         good afternoon = good day to you
         good evening = good even
         good night = good even
@@ -214,12 +227,12 @@ object Lexicon {
         ok = very well
         okay = very well
         sure = assuredly
-        please = if you please
+        please = kindly
         sorry = my apologies
         very = most
         really = truly
         actually = in truth
-        literally = verily
+        literally = truly
         probably = in all likelihood
         definitely = assuredly
         maybe = perhaps
@@ -227,11 +240,10 @@ object Lexicon {
         basically = in essence
         obviously = plainly
         also = likewise
-        however = howbeit
-        anyway = howsoever
+        however = nevertheless
+        anyway = in any case
         about = concerning
         while = whilst
-        between = betwixt
         among = amongst
         toward = towards
         big = considerable
@@ -286,14 +298,12 @@ object Lexicon {
         begin = commence
         finish = conclude
         stop = cease
-        wait = tarry
         talk = converse
         ask = inquire
         want = desire
         need = require
         love = adore
         hate = detest
-        think = consider
         see = perceive
         watch = observe
         listen = attend
@@ -317,11 +327,10 @@ object Lexicon {
         friend = companion
         friends = companions
         guy = gentleman
-        guys = company
         people = persons
         kid = child
         kids = children
-        car = motor carriage
+        car = motor car
         phone = telephone
         party = gathering
         fun = diversion
@@ -353,7 +362,7 @@ object Lexicon {
         maybe = mayhap
         truly = verily
         assuredly = in sooth
-        most = exceeding
+        very = exceeding
         quickly = apace
         shortly = anon
         soon = anon
@@ -372,6 +381,11 @@ object Lexicon {
         week = sennight
         minute = moment
         second = instant
+        nevertheless = howbeit
+        in any case = howsoever
+        between = betwixt
+        wait = tarry
+        motor car = carriage
         # people and places
         man = fellow
         woman = lady
@@ -381,6 +395,7 @@ object Lexicon {
         companion = good fellow
         companions = good fellows
         boss = liege
+        guys = gentles
         doctor = physician
         teacher = tutor
         student = pupil
@@ -473,7 +488,6 @@ object Lexicon {
         employ = make use of
         reveal = disclose
         commence = set forth upon
-        cease = desist
         tarry = bide
         converse = discourse
         inquire = beseech
@@ -486,6 +500,7 @@ object Lexicon {
         perceive = espy
         attend = hearken
         hear = hark
+        think = consider
         depart = take leave
         reside = dwell
         eat = sup
@@ -500,7 +515,6 @@ object Lexicon {
         find = discover
         read = peruse
         write = pen
-        open = unfasten
         break = rend
         throw = hurl
         carry = bear
@@ -564,7 +578,7 @@ object Lexicon {
         greet grow guard guess handle hang happen hark harken hate haunt heal
         hear hearken help hide hire hold hope hunt hurry hurt imagine intend
         invite join judge jump keep kill kiss knock know lack land last laugh lay
-        lead leap learn leave lend let lift like listen live loathe lock long
+        lead leap learn leave lend let lie lift like listen live loathe lock long
         look lose love make march mark marry mean meet mend mind miss move name
         need note notice obey offer open order own pass pay peruse pick place
         plan play please point possess pour pray prefer prepare present press
@@ -579,6 +593,15 @@ object Lexicon {
         touch train travel treat trust try turn understand use vanish vex visit
         vow wait wake walk wander want warn wash watch wear weep weigh welcome
         win wish wonder work worry write yield
+        achieve affect base become cause check compare complete connect contain
+        control cost determine develop encourage ensure establish examine exist
+        express face focus force generate hit identify ignore improve include
+        increase indicate influence inform introduce involve limit link list
+        maintain manage matter measure mention occur operate organise organize
+        perform permit prevent print produce protect publish purchase reduce
+        refer reflect reject relate release rely repeat replace represent result
+        reveal review risk roll satisfy select separate shape sign sink sort
+        split spread state stick supply support survive test tie vote waste wave
         """
     )
 
@@ -669,16 +692,39 @@ object Lexicon {
         """
     )
 
-    /** Words ending in -s that are nouns far more often than verbs. */
-    val NOT_ETH: Set<String> = words(
+    /** Words ending in -s that are never third-person verbs. */
+    val NEVER_ETH: Set<String> = words(
         """
-        things matters works means times hands eyes days years ways words
-        results answers questions places faces shows plays games plans forms
-        lights minds changes lives loves needs wants looks feels kids notes
-        marks points offers orders presents reports returns rests shares sounds
-        starts states steps stops tastes trains travels trusts uses visits walks
-        watches wishes wonders yields is was has does as his hers its us this
-        thus always perhaps sometimes always news
+        is was has does as his hers its us this thus always perhaps sometimes
+        news yes plus less unless
+        """
+    )
+
+    /**
+     * Words ending in -s that are usually plural nouns. These are only held
+     * back when the subject in front of them is not clearly singular, so
+     * "he plays" still becomes "he playeth" while "good times" is left alone.
+     */
+    val NOUN_LIKE_S: Set<String> = words(
+        """
+        things matters times ways means eyes hands days years words results
+        answers questions places faces kids lives games plans forms lights
+        minds notes marks points orders reports returns shares sounds states
+        steps trains travels visits walks watches wishes wonders yields changes
+        shows plays works uses offers presents rests stops starts tastes trusts
+        signs links lists tests votes waves shapes prints risks reviews costs
+        limits measures controls results states forms faces
+        """
+    )
+
+    /** Irregular past tenses, which the base-verb list cannot reach. */
+    val PAST_VERBS: Set<String> = words(
+        """
+        saw told gave took made said knew thought heard found brought sent met
+        left felt kept held put set came went got had was were did began broke
+        brought bought caught chose drank drove ate fell fought forgot grew
+        knew laid lay led lost paid ran rang rose sat slept spoke spent stood
+        stole taught tore thought threw understood woke wore won wrote
         """
     )
 
