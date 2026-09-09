@@ -73,7 +73,15 @@ class SettingsActivity : Activity(), KeyboardPanel.Listener {
     }
 
     private fun setUpSwitches() {
-        bindSwitch(R.id.switch_auto, prefs.autoTranslate) { prefs.autoTranslate = it }
+        bindSwitch(R.id.switch_auto, prefs.autoTranslate) {
+            prefs.autoTranslate = it
+            preview?.setTranslating(it)
+            preview?.setLayoutOptions(prefs.layout())
+        }
+        bindSwitch(R.id.switch_live, prefs.liveTranslate) {
+            prefs.liveTranslate = it
+            preview?.setLayoutOptions(prefs.layout())
+        }
         bindSwitch(R.id.switch_flourish, prefs.flourish) { prefs.flourish = it }
         bindSwitch(R.id.switch_olde, prefs.oldeSpelling) { prefs.oldeSpelling = it }
         bindSwitch(R.id.switch_number_row, prefs.numberRow) {
@@ -212,5 +220,13 @@ class SettingsActivity : Activity(), KeyboardPanel.Listener {
 
     override fun onRevert() {
         sample.setText("")
+    }
+
+    /** In the preview, the Translate key rewrites the sample box in place. */
+    override fun onTranslate() {
+        val raw = sample.text?.toString().orEmpty()
+        if (raw.isBlank()) return
+        sample.setText(PremiumEnglish.translate(raw, prefs.options(), finished = true))
+        sample.setSelection(sample.text.length)
     }
 }

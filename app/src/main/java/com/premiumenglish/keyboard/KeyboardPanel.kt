@@ -37,9 +37,10 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
         fun onOpenSettings()
         fun onSwitchKeyboard()
         fun onRevert()
+        fun onTranslate()
     }
 
-    private enum class Kind { CHAR, SHIFT, BACKSPACE, ENTER, LAYER, SPACE }
+    private enum class Kind { CHAR, SHIFT, BACKSPACE, ENTER, LAYER, SPACE, TRANSLATE }
 
     private class Key(
         val label: String,
@@ -127,11 +128,12 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
     // ------------------------------------------------------------------ public
 
     /** Shows the plain modern text behind the ornate text in the field. */
-    fun setSource(text: String) {
+    @JvmOverloads
+    fun setSource(text: String, canRevert: Boolean = text.isNotBlank()) {
         val trimmed = text.trim()
         sourceView.text = if (trimmed.isEmpty()) idleHint() else "“$trimmed”"
         sourceView.alpha = if (trimmed.isEmpty()) 0.5f else 1f
-        revertChip.visibility = if (trimmed.isEmpty() || !translating) GONE else VISIBLE
+        revertChip.visibility = if (!canRevert || !translating) GONE else VISIBLE
     }
 
     fun setTier(tier: Int) {
@@ -151,7 +153,8 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
     /** Applies the size, number row and feedback settings, rebuilding the keys. */
     fun setLayoutOptions(options: KeyboardLayoutOptions) {
         val needsRebuild = options.sizeScale != this.options.sizeScale ||
-            options.numberRow != this.options.numberRow
+            options.numberRow != this.options.numberRow ||
+            options.translateKey != this.options.translateKey
         this.options = options
         if (needsRebuild) renderLayer()
     }
@@ -166,8 +169,11 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
         }
     }
 
-    private fun idleHint(): String =
-        if (translating) "Premium English · ${Prefs.tierName(tier)}" else "Translation suspended"
+    private fun idleHint(): String = when {
+        !translating -> "Translation suspended"
+        options.translateKey -> "Type, then tap ✦ · ${Prefs.tierName(tier)}"
+        else -> "Premium English · ${Prefs.tierName(tier)}"
+    }
 
     // ------------------------------------------------------------------ status bar
 
@@ -265,14 +271,17 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
         Key(it.toString(), Kind.CHAR, it.toString(), if (options.numberRow) null else SECONDARIES[it])
     }
 
-    private fun bottomRow(layerLabel: String, target: Int): List<Key> = listOf(
-        Key(layerLabel, Kind.LAYER, weight = 1.4f, layer = target),
-        Key("☺", Kind.LAYER, weight = 1.1f, layer = LAYER_EMOJI),
-        Key(",", Kind.CHAR, ",", "!"),
-        Key("space", Kind.SPACE, " ", weight = 4.4f),
-        Key(".", Kind.CHAR, ".", "?"),
-        Key("↵", Kind.ENTER, weight = 1.4f)
-    )
+    private fun bottomRow(layerLabel: String, target: Int): List<Key> {
+        val keys = ArrayList<Key>(7)
+        keys.add(Key(layerLabel, Kind.LAYER, weight = 1.3f, layer = target))
+        keys.add(Key("☺", Kind.LAYER, weight = 1f, layer = LAYER_EMOJI))
+        keys.add(Key(",", Kind.CHAR, ",", "!"))
+        keys.add(Key("space", Kind.SPACE, " ", weight = if (options.translateKey) 3.4f else 4.4f))
+        keys.add(Key(".", Kind.CHAR, ".", "?"))
+        if (options.translateKey) keys.add(Key("✦", Kind.TRANSLATE, weight = 1.6f))
+        keys.add(Key("↵", Kind.ENTER, weight = 1.3f))
+        return keys
+    }
 
     private fun renderLayer() {
         keyRows.removeAllViews()
@@ -302,11 +311,13 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
                 TypedValue.COMPLEX_UNIT_SP,
                 (if (key.kind == Kind.CHAR) 19f else 15f) * (0.9f + 0.1f * options.sizeScale)
             )
-            setTextColor(color(if (key.kind == Kind.ENTER) R.color.key_accent_text else R.color.key_text))
+            val gold = key.kind == Kind.TRANSLATE ||
+                (key.kind == Kind.ENTER && !options.translateKey)
+            setTextColor(color(if (gold) R.color.key_accent_text else R.color.key_text))
             setBackgroundResource(
-                when (key.kind) {
-                    Kind.CHAR -> R.drawable.key_background
-                    Kind.ENTER -> R.drawable.key_background_accent
+                when {
+                    gold -> R.drawable.key_background_accent
+                    key.kind == Kind.CHAR -> R.drawable.key_background
                     else -> R.drawable.key_background_modifier
                 }
             )
@@ -439,6 +450,7 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
             }
             Kind.SPACE -> listener.onChar(' ')
             Kind.ENTER -> listener.onEnter()
+            Kind.TRANSLATE -> listener.onTranslate()
             Kind.BACKSPACE -> listener.onBackspace()
             Kind.SHIFT -> {
                 shift = when (shift) {

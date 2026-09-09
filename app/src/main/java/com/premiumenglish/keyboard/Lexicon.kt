@@ -108,6 +108,7 @@ object Lexicon {
         lots of = a great many
         a bunch of = a host of
         a lot = a great deal
+        what kind of = what manner of
         kind of = somewhat
         sort of = somewhat
         right now = this very instant
@@ -443,7 +444,6 @@ object Lexicon {
         price = sum
         expensive = dear
         cheap = paltry
-        free = gratis
         # qualities
         fine = goodly
         splendid = most excellent
@@ -515,7 +515,6 @@ object Lexicon {
         find = discover
         read = peruse
         write = pen
-        break = rend
         throw = hurl
         carry = bear
         # abstract
@@ -555,8 +554,351 @@ object Lexicon {
         """
     )
 
+
+    /**
+     * The rest of the Courtly vocabulary.
+     *
+     * Kept in its own table only for length. Words whose sense changes with
+     * their grammar are deliberately absent — "will", "may", "might", "can",
+     * "just", "like", "so", "well", "mean", "back" and "right" all mean two
+     * things at once, and replacing them turns sentences to nonsense. The stem
+     * lookup in the engine means one entry here also covers the plural, the
+     * past tense and the -ing form.
+     */
+    private val WORDS_2B = pairs(
+        """
+        # ---- people ----
+        men = fellows
+        women = ladies
+        boy = lad
+        boys = lads
+        girl = lass
+        girls = lasses
+        father = sire
+        dad = sire
+        mom = mother
+        mum = mother
+        family = kin
+        wife = goodwife
+        husband = goodman
+        enemy = foe
+        soldier = man-at-arms
+        soldiers = men-at-arms
+        thief = knave
+        liar = dissembler
+        idiot = clod-pate
+        moron = dolt
+        coward = craven
+        hero = champion
+        leader = chieftain
+        worker = labourer
+        farmer = husbandman
+        guard = sentinel
+        crowd = throng
+        group = company
+        team = fellowship
+        army = host
+        sailor = mariner
+        lawyer = advocate
+        judge = magistrate
+        priest = parson
+        citizen = subject
+        servant = servant
+        neighbor = neighbour
+        # ---- the body ----
+        head = pate
+        face = visage
+        hair = locks
+        stomach = belly
+        belly = belly
+        leg = limb
+        body = frame
+        brain = wits
+        # ---- the heart ----
+        anger = wrath
+        joy = mirth
+        happiness = mirth
+        sadness = sorrow
+        fear = dread
+        courage = valour
+        bravery = valour
+        hatred = enmity
+        worry = disquiet
+        stress = vexation
+        trouble = travail
+        peace = repose
+        mood = humour
+        feeling = sentiment
+        memory = remembrance
+        mistake = error
+        truth = sooth
+        advice = counsel
+        joke = jest
+        promise = troth
+        # ---- time ----
+        afternoon = afternoon
+        sometimes = betimes
+        early = betimes
+        late = tardy
+        finally = at last
+        immediately = straightway
+        suddenly = of a sudden
+        recently = of late
+        usually = commonly
+        forever = evermore
+        century = age
+        until = till
+        since = sith
+        moment = instant
+        in due course = anon
+        # ---- places ----
+        window = casement
+        bed = couch
+        chair = seat
+        table = board
+        street = thoroughfare
+        village = village
+        area = quarter
+        building = edifice
+        church = chapel
+        prison = dungeon
+        hospital = infirmary
+        university = academy
+        office = counting-house
+        bank = counting-house
+        farm = farmstead
+        forest = wood
+        river = stream
+        ocean = main
+        beach = strand
+        mountain = mount
+        field = meadow
+        sky = firmament
+        storm = tempest
+        fire = flame
+        metal = iron
+        # ---- things ----
+        meal = repast
+        breakfast = break-fast
+        lunch = midday repast
+        meat = flesh
+        cup = goblet
+        plate = trencher
+        knife = blade
+        sword = blade
+        gun = pistol
+        weapon = arms
+        armour = mail
+        armor = mail
+        shield = buckler
+        shirt = doublet
+        coat = cloak
+        jacket = jerkin
+        gown = gown
+        paper = parchment
+        pen = quill
+        map = chart
+        box = chest
+        tool = implement
+        machine = engine
+        ship = vessel
+        boat = vessel
+        bus = common carriage
+        train = iron horse
+        plane = flying machine
+        bike = velocipede
+        app = contrivance
+        video = moving picture
+        film = moving picture
+        photo = likeness
+        picture = likeness
+        camera = likeness-taker
+        toy = plaything
+        medicine = physic
+        poison = venom
+        # ---- creatures ----
+        pig = swine
+        snake = serpent
+        cows = kine
+        # ---- describing things ----
+        wide = broad
+        heavy = weighty
+        strong = stout
+        weak = feeble
+        fast = swift
+        quick = swift
+        hot = sultry
+        cold = chill
+        dirty = filthy
+        poor = beggarly
+        easy = simple
+        difficult = arduous
+        important = weighty
+        dangerous = perilous
+        lazy = idle
+        careful = heedful
+        careless = heedless
+        lucky = fortunate
+        unlucky = ill-starred
+        brave = valiant
+        healthy = hale
+        gentle = gentle
+        rude = uncivil
+        polite = courteous
+        honest = true
+        clever = shrewd
+        serious = grave
+        quiet = hushed
+        loud = clamorous
+        dark = murky
+        normal = common
+        special = rare
+        fat = corpulent
+        thin = lean
+        fake = counterfeit
+        real = veritable
+        whole = entire
+        terrible = dreadful
+        horrible = hideous
+        disgusting = loathsome
+        tasty = savoury
+        delicious = savoury
+        tiny = wee
+        # ---- how and how much ----
+        quite = passing
+        almost = well-nigh
+        nearly = well-nigh
+        enough = enow
+        only = merely
+        even = e'en
+        several = divers
+        various = sundry
+        different = divers
+        same = selfsame
+        away = hence
+        forward = forth
+        slowly = at leisure
+        honestly = in good faith
+        seriously = in earnest
+        exactly = precisely
+        especially = chiefly
+        why = wherefore
+        although = albeit
+        though = albeit
+        in all likelihood = belike
+        plainly = manifestly
+        for the reason that = for that
+        # ---- doing things ----
+        cheat = cozen
+        steal = filch
+        rob = plunder
+        hide = conceal
+        escape = flee
+        chase = pursue
+        attack = assail
+        beat = vanquish
+        destroy = lay waste
+        cut = cleave
+        push = thrust
+        pull = draw
+        lift = raise
+        drop = let fall
+        hit = strike
+        jump = leap
+        travel = journey
+        move = stir
+        rest = repose
+        wake = rouse
+        cry = weep
+        call = summon
+        shout = cry out
+        dance = caper
+        argue = quarrel
+        agree = accord
+        allow = suffer
+        promise = vow
+        forgive = pardon
+        praise = extol
+        complain = grumble
+        doubt = misdoubt
+        decide = resolve
+        prepare = make ready
+        understand = comprehend
+        teach = instruct
+        change = alter
+        create = fashion
+        happen = befall
+        marry = wed
+        hug = embrace
+        heal = cure
+        rescue = deliver
+        protect = shield
+        wash = cleanse
+        clean = cleanse
+        dress = attire
+        fear = dread
+        # ---- exclaiming ----
+        wow = marry
+        oops = alack
+        ouch = alas
+        alright = very well
+        cheers = good health
+        congratulations = joy be with thee
+        damn = a plague upon it
+        crap = fie
+        ugh = fie
+        oh = O
+        # ---- colour ----
+        black = sable
+        white = milk-white
+        red = crimson
+        blue = azure
+        green = verdant
+        yellow = golden
+        grey = ashen
+        gray = ashen
+        brown = russet
+        # ---- gaps found by checking the lexicon against common English ----
+        child = babe
+        flower = bloom
+        hat = cap
+        shoe = boot
+        clock = timepiece
+        answer = reply
+        information = tidings
+        history = chronicle
+        reason = cause
+        education = schooling
+        nation = realm
+        college = academy
+        community = commonwealth
+        government = the crown
+        president = sovereign
+        control = mastery
+        development = growth
+        effort = endeavour
+        language = tongue
+        process = course
+        result = outcome
+        level = degree
+        power = might
+        force = might
+        role = part
+        new = new-fangled
+        large = great
+        high = lofty
+        clear = plain
+        human = mortal
+        bright = radiant
+        sharp = keen
+        slow = sluggish
+        close = shut fast
+        """
+    )
+
     val PHRASES: Map<Int, Map<String, String>> = mapOf(1 to PHRASES_1, 2 to PHRASES_2, 3 to PHRASES_3)
-    val WORDS: Map<Int, Map<String, String>> = mapOf(1 to WORDS_1, 2 to WORDS_2, 3 to WORDS_3)
+    val WORDS: Map<Int, Map<String, String>> =
+        mapOf(1 to WORDS_1, 2 to WORDS_2 + WORDS_2B, 3 to WORDS_3)
 
     // ---------------------------------------------------------------- grammar data
 
@@ -602,6 +944,11 @@ object Lexicon {
         refer reflect reject relate release rely repeat replace represent result
         reveal review risk roll satisfy select separate shape sign sink sort
         split spread state stick supply support survive test tie vote waste wave
+        cheat rob chase attack beat destroy cut push pull lift drop hit jump
+        travel rest wake cry call shout dance argue agree allow promise forgive
+        praise complain decide prepare understand change create happen marry hug
+        heal rescue protect wash clean dress worry stress trouble guard group
+        team plan map box picture video photo camera coat dress gown drop
         """
     )
 
@@ -725,6 +1072,108 @@ object Lexicon {
         brought bought caught chose drank drove ate fell fought forgot grew
         knew laid lay led lost paid ran rang rose sat slept spoke spent stood
         stole taught tore thought threw understood woke wore won wrote
+        """
+    )
+
+    /** Irregular past tenses, mapped back to the verb they came from. */
+    val PAST_TO_BASE: Map<String, String> = pairs(
+        """
+        bought = buy
+        brought = bring
+        caught = catch
+        chose = choose
+        came = come
+        did = do
+        drove = drive
+        ate = eat
+        fell = fall
+        felt = feel
+        fought = fight
+        found = find
+        flew = fly
+        forgot = forget
+        gave = give
+        got = get
+        grew = grow
+        heard = hear
+        held = hold
+        hid = hide
+        kept = keep
+        knew = know
+        led = lead
+        left = leave
+        lost = lose
+        made = make
+        met = meet
+        paid = pay
+        ran = run
+        rode = ride
+        rose = rise
+        said = say
+        saw = see
+        sat = sit
+        sent = send
+        shot = shoot
+        slept = sleep
+        sold = sell
+        spent = spend
+        spoke = speak
+        stole = steal
+        stood = stand
+        swam = swim
+        taught = teach
+        thought = think
+        threw = throw
+        told = tell
+        took = take
+        understood = understand
+        went = go
+        wept = weep
+        wore = wear
+        won = win
+        wrote = write
+        broke = break
+        began = begin
+        drank = drink
+        sang = sing
+        """
+    )
+
+    /** The past tense of the archaic verbs the lexicon hands out. */
+    val IRREGULAR_PAST: Map<String, String> = pairs(
+        """
+        weep = wept
+        bear = bore
+        draw = drew
+        strike = struck
+        cleave = cleft
+        flee = fled
+        seek = sought
+        behold = beheld
+        rend = rent
+        slay = slew
+        dwell = dwelt
+        wed = wed
+        leap = leapt
+        creep = crept
+        sleep = slept
+        keep = kept
+        hold = held
+        tell = told
+        take = took
+        make = made
+        come = came
+        go = went
+        give = gave
+        get = got
+        stand = stood
+        teach = taught
+        buy = bought
+        bring = brought
+        think = thought
+        speak = spoke
+        write = wrote
+        hurl = hurled
         """
     )
 

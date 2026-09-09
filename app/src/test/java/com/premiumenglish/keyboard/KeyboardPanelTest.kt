@@ -29,6 +29,7 @@ class KeyboardPanelTest {
         var enters = 0
         var tierCycles = 0
         var reverts = 0
+        var translates = 0
 
         override fun onChar(c: Char) { chars.append(c) }
         override fun onText(text: String) { texts.add(text) }
@@ -39,6 +40,7 @@ class KeyboardPanelTest {
         override fun onOpenSettings() = Unit
         override fun onSwitchKeyboard() = Unit
         override fun onRevert() { reverts++ }
+        override fun onTranslate() { translates++ }
     }
 
     private lateinit var recorder: Recorder
@@ -202,6 +204,21 @@ class KeyboardPanelTest {
         assertEquals(View.GONE, findKey("↺")!!.visibility)
         panel.setSource("hello")
         assertEquals(View.VISIBLE, findKey("↺")!!.visibility)
+    }
+
+    @Test
+    fun `the translate key appears only when translation is not live`() {
+        assertNull("no translate key by default in this test panel", findKey("✦"))
+        panel.setLayoutOptions(KeyboardLayoutOptions(translateKey = true))
+        layOut()
+        val key = findKey("✦")
+        assertNotNull("the translate key should be showing", key)
+        tap(key!!)
+        assertEquals(1, recorder.translates)
+
+        panel.setLayoutOptions(KeyboardLayoutOptions(translateKey = false))
+        layOut()
+        assertNull(findKey("✦"))
     }
 
     @Test

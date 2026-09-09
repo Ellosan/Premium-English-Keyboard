@@ -396,7 +396,7 @@ object PremiumEnglish {
         while (i < toks.size) {
             val t = toks[i]
             if (t.kind == WORD && !t.locked) {
-                val value = table[t.text]
+                val value = table[t.text] ?: inflectedValue(t.text, table)
                 if (value != null) {
                     i = replaceSpan(toks, i, i, value, lock = false)
                     continue
@@ -404,6 +404,119 @@ object PremiumEnglish {
             }
             i++
         }
+    }
+
+    /**
+     * Looks a word up by its stem and puts the ending back on the replacement,
+     * so that one entry for "dog" also covers "dogs", and one for "walk" covers
+     * "walked" and "walking". Without this the lexicon would need four entries
+     * for every word in it.
+     */
+    private fun inflectedValue(word: String, table: Map<String, String>): String? {
+        // "dogs" to "hounds", and "he works" to "he toils" — nouns and verbs
+        // take the same -s.
+        if (word.length >= 4 && word.endsWith("s") && word !in Lexicon.NEVER_ETH) {
+            stemValue(word, table, singularStems(word))?.let { (prefix, head) ->
+                // "weapon" becomes "arms", which is plural already.
+                return if (head.endsWith("s")) prefix + head else prefix + plural(head)
+            }
+        }
+        if (word.length >= 5 && word.endsWith("ed")) {
+            singleWordValue(word, table, pastStems(word))?.let { return past(it) }
+        }
+        // "bought" has no -ed to strip, so look the stem up in a table.
+        Lexicon.PAST_TO_BASE[word]?.let { stem ->
+            singleWordValue(word, table, listOf(stem))?.let { return past(it) }
+        }
+        if (word.length >= 6 && word.endsWith("ing")) {
+            singleWordValue(word, table, gerundStems(word))?.let { return gerund(it) }
+        }
+        return null
+    }
+
+    /** The replacement split into what comes before its last word, and that word. */
+    private fun stemValue(
+        word: String,
+        table: Map<String, String>,
+        stems: List<String>
+    ): Pair<String, String>? {
+        for (stem in stems) {
+            if (stem == word) continue
+            val value = table[stem] ?: continue
+            val cut = value.lastIndexOf(' ') + 1
+            val head = value.substring(cut)
+            // "need" becomes "have need of", and there is no inflecting "of".
+            if (head in FUNCTION_WORDS) continue
+            return value.substring(0, cut) to head
+        }
+        return null
+    }
+
+    /** Endings other than -s only work on a replacement that is a single word. */
+    private fun singleWordValue(word: String, table: Map<String, String>, stems: List<String>): String? {
+        for (stem in stems) {
+            if (stem == word) continue
+            val value = table[stem] ?: continue
+            if (value.indexOf(' ') >= 0) continue
+            return value
+        }
+        return null
+    }
+
+    private fun singularStems(word: String): List<String> {
+        val stems = ArrayList<String>(3)
+        if (word.endsWith("ies") && word.length > 4) stems.add(word.dropLast(3) + "y")
+        if (word.endsWith("es") && word.length > 3) stems.add(word.dropLast(2))
+        stems.add(word.dropLast(1))
+        return stems
+    }
+
+    private fun pastStems(word: String): List<String> {
+        val stems = ArrayList<String>(4)
+        stems.add(word.dropLast(2))
+        stems.add(word.dropLast(1))
+        if (word.endsWith("ied")) stems.add(word.dropLast(3) + "y")
+        undouble(word.dropLast(2))?.let { stems.add(it) }
+        return stems
+    }
+
+    private fun gerundStems(word: String): List<String> {
+        val stem = word.dropLast(3)
+        val stems = ArrayList<String>(3)
+        stems.add(stem)
+        stems.add(stem + "e")
+        undouble(stem)?.let { stems.add(it) }
+        return stems
+    }
+
+    /** "stopp" back to "stop". */
+    private fun undouble(stem: String): String? {
+        val n = stem.length
+        if (n < 3 || stem[n - 1] != stem[n - 2]) return null
+        return stem.dropLast(1)
+    }
+
+    private fun plural(word: String): String = when {
+        word.endsWith("s") || word.endsWith("sh") || word.endsWith("ch") ||
+            word.endsWith("x") || word.endsWith("z") -> word + "es"
+        word.endsWith("y") && word.length > 1 && word[word.length - 2] !in VOWELS ->
+            word.dropLast(1) + "ies"
+        else -> word + "s"
+    }
+
+    private fun past(word: String): String = Lexicon.IRREGULAR_PAST[word] ?: when {
+        word.endsWith("e") -> word + "d"
+        word.endsWith("y") && word.length > 1 && word[word.length - 2] !in VOWELS ->
+            word.dropLast(1) + "ied"
+        shouldDouble(word) -> word + word.last() + "ed"
+        else -> word + "ed"
+    }
+
+    private fun gerund(word: String): String = when {
+        word.endsWith("ee") -> word + "ing"
+        word.endsWith("e") -> word.dropLast(1) + "ing"
+        shouldDouble(word) -> word + word.last() + "ing"
+        else -> word + "ing"
     }
 
     // ------------------------------------------------------------------ pass 5: do-support

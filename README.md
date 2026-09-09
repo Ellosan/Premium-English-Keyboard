@@ -2,37 +2,38 @@
 
 An Android keyboard that quietly upgrades your English as you type it.
 
-You type `hello, how are you?` and the field fills in with
-**`Hail, how dost thou fare?`** — no button to press, no second app, no
-copy-and-paste. It is an ordinary soft keyboard everywhere it appears, and the
-translation happens between your thumb and the text field.
+You type your message the ordinary way, tap **✦**, and
+`hello, how are you?` becomes **`Hail, how dost thou fare?`** — in place, in
+whatever app you are in, with no second app and no copy-and-paste. While you
+type, the status bar shows what the key is about to give you.
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│ ◆  “i think you are nice”        ↺  Courtly  🌐  ⚙     │
+│ ◆  “Methinks thou art pleasant”  ↺  Courtly  🌐  ⚙     │
 ├────────────────────────────────────────────────────────┤
 │  q¹  w²  e³  r⁴  t⁵  y⁶  u⁷  i⁸  o⁹  p⁰                │
 │    a@  s#  d$  f_  g&  h-  j+  k(  l)                  │
 │  ⇧    z*  x"  c'  v:  b;  n!  m?      ⌫                │
-│ ?123  ☺   ,        space        .        ↵             │
+│ ?123 ☺  ,      space      .    ✦     ↵                 │
 └────────────────────────────────────────────────────────┘
 ```
 
-The status bar shows what you actually typed, so you can see both halves at
-once, and **↺** puts your own words back if the ceremony is unwelcome.
+The bar always shows the half the field is not showing: the translation while
+you are still typing plainly, and your own plain words afterwards. **↺** takes
+a translation back, and takes it back again if you press **✦** by mistake.
 
 ## Service tiers
 
 The keyboard is sold, as all premium things are, in tiers. Tap the tier chip to
 move between them.
 
-| Modern | Refined | Courtly | Sovereign |
+| What you type | Refined | Courtly | Sovereign |
 | --- | --- | --- | --- |
 | hey, what's up? | I say, how goes it? | Hark, how fareth it with thee? | Hark, what tidings, gentle soul? |
-| i think you look great today | I think you look splendid today | Methinks thou lookest most excellent this day | Methinks thou lookest passing great this day |
-| can you help me? i don't know what to do | Can you assist me? I do not know what to do | Canst thou aid me? I do not know what to do | Canst thou aid me? I know not what to do |
-| she has a big house and two dogs | She has a considerable residence and two dogs | She hath a most excellent abode and two dogs | She hath a passing great abode and two dogs |
-| my brother works at the bar and he loves it | My brother works at the bar and he loves it | My brother worketh at the alehouse and he loveth it | My brother worketh at the alehouse and he loveth it |
+| my brother works at the bar and he loves it | My brother labours at the bar and he adores it | My brother toileth at the alehouse and he cherisheth it | My brother toileth at the alehouse and he cherisheth it |
+| the soldiers walked to the old castle | The soldiers walked to the old castle | The men-at-arms perambulated to the ancient castle | The men-at-arms perambulated to the ancient castle |
+| she has a big house and two dogs | She has a considerable residence and two dogs | She hath a most excellent abode and two hounds | She hath a passing great abode and two faithful hounds |
+| why are you so angry? i bought you a gift | Why are you so displeased? I procured you a gift | Wherefore art thou so wroth? I procured thee a boon | Wherefore art thou so wroth? I procured thee a boon |
 
 **Refined** is a lift in register and nothing more — no *thou*, no *-eth*, no
 costume. **Courtly** brings in *thou* and *thee*, the archaic endings, and the
@@ -49,6 +50,10 @@ Two extras are off by default, in Settings:
 It is meant to be usable as your only keyboard, so it does the things a
 keyboard is expected to do:
 
+- **✦ translates** what you have typed since you last pressed it, so you can
+  write and edit in plain English and elevate it when the message is finished.
+  Prefer the older behaviour, where the words rearrange themselves under your
+  thumb as you type? Turn on *Translate as I type* in Settings.
 - **Size** — five steps from Compact to Huge, on a slider, with a working
   keyboard underneath it in Settings so you can judge the size by typing on it.
 - **Hold a letter** for the digit or symbol printed on it (`q`→`1`, `a`→`@`),
@@ -64,16 +69,15 @@ Each of those can be turned off in Settings.
 
 ## How the translation works
 
-The keyboard keeps everything you have typed since the last full stop in a
-buffer, in plain modern English. After each keystroke it translates that buffer
-and writes the result back over itself. The field shows Premium English; the
-buffer remembers what you actually typed.
+The keyboard keeps what you have typed in a buffer of plain modern English, and
+knows which characters in the field are its own. Pressing ✦ swaps exactly those
+characters for the translation — so you can type a whole message, edit it, and
+elevate it in one go. Press it twice and nothing happens the second time;
+translated text is never put through again.
 
-Keeping the original around is what makes the rest work. Backspace rewinds your
-words rather than the ornate ones on screen, and translations that depend on a
-later word can still happen — `i` is nothing on its own, but `i think` is
-*methinks*. The word currently under your thumb is never translated until you
-finish it, so nothing rearranges itself mid-word.
+Keeping the typed original is what makes the rest work: ↺ can put it back,
+backspace rewinds your own words, and a translation can depend on a later word
+— `i` is nothing on its own, but `i think` is *methinks*.
 
 The translation itself is a series of passes over a token list
 ([`PremiumEnglish.kt`](app/src/main/java/com/premiumenglish/keyboard/PremiumEnglish.kt)):
@@ -103,8 +107,17 @@ The translation itself is a series of passes over a token list
 
 The vocabulary lives in
 [`Lexicon.kt`](app/src/main/java/com/premiumenglish/keyboard/Lexicon.kt) as
-plain text tables, one per tier, and a translation at tier N applies every table
-up to N.
+plain text tables, one per tier — around 730 entries, and a translation at tier
+N applies every table up to N. The engine looks words up by their stem and puts
+the ending back on the replacement, so one entry for `dog` also covers `dogs`,
+and one for `walk` covers `walked` and `walking`; irregular pasts are listed, so
+`bought` reaches `buy` and comes back as `procured` rather than `buyed`.
+
+Words whose meaning depends on their grammar are deliberately left out — `will`,
+`may`, `can`, `just`, `like`, `so`, `well`, `mean`, `back` and `right` each mean
+two things at once, and replacing them turns sentences to nonsense. Plenty of
+other words are missing because they need no help: `time`, `hand`, `water`,
+`night`, `heart` and `stand` were Shakespeare's words already.
 
 ## Building
 
@@ -112,7 +125,7 @@ Requires JDK 17+ and an Android SDK with platform 34.
 
 ```sh
 ./gradlew assembleDebug          # app/build/outputs/apk/debug/app-debug.apk
-./gradlew testDebugUnitTest      # 54 tests
+./gradlew testDebugUnitTest      # 63 tests
 ./gradlew installDebug           # to a connected device
 ```
 
@@ -133,12 +146,12 @@ the ◆ key suspends it anywhere else.
 app/src/main/java/com/premiumenglish/keyboard/
     PremiumEnglish.kt      the translation engine (no Android imports)
     Lexicon.kt             vocabulary and grammar tables, by tier
-    SegmentBuffer.kt       the typing loop: what is typed, what is shown
+    SegmentBuffer.kt       the typing loop: what is typed, what ✦ replaces
     PremiumEnglishIME.kt   the input method service
     KeyboardPanel.kt       the keys, the status bar, the key preview
     SettingsActivity.kt    setup, preferences, and a live keyboard
     Prefs.kt               stored settings
-app/src/test/java/...      54 unit tests
+app/src/test/java/...      63 unit tests
 ```
 
 The engine and the typing loop have no Android imports and run on a plain JVM.

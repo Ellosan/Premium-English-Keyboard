@@ -21,6 +21,15 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_AUTO, true)
         set(value) = sp.edit().putBoolean(KEY_AUTO, value).apply()
 
+    /**
+     * Translate on every keystroke instead of waiting for the Translate key.
+     * Off by default: watching your words rearrange themselves under your
+     * thumb is entertaining, but it is not much fun to type on.
+     */
+    var liveTranslate: Boolean
+        get() = sp.getBoolean(KEY_LIVE, false)
+        set(value) = sp.edit().putBoolean(KEY_LIVE, value).apply()
+
     /** Ceremonial openers and closers on finished sentences. */
     var flourish: Boolean
         get() = sp.getBoolean(KEY_FLOURISH, false)
@@ -65,12 +74,16 @@ class Prefs(context: Context) {
         set(value) = sp.edit().putBoolean(KEY_DOUBLE_SPACE, value).apply()
 
     fun layout(): KeyboardLayoutOptions =
-        KeyboardLayoutOptions(sizeScale, numberRow, vibrate, keyPreview)
+        KeyboardLayoutOptions(sizeScale, numberRow, vibrate, keyPreview, translateKey())
+
+    /** The Translate key is only useful when it has something to do. */
+    fun translateKey(): Boolean = autoTranslate && !liveTranslate
 
     companion object {
         private const val NAME = "premium_english"
         private const val KEY_TIER = "tier"
         private const val KEY_AUTO = "auto_translate"
+        private const val KEY_LIVE = "live_translate"
         private const val KEY_FLOURISH = "flourish"
         private const val KEY_OLDE = "olde_spelling"
         private const val KEY_SIZE = "size_step"
@@ -97,5 +110,6 @@ data class KeyboardLayoutOptions(
     val sizeScale: Float = 1f,
     val numberRow: Boolean = false,
     val vibrate: Boolean = true,
-    val keyPreview: Boolean = true
+    val keyPreview: Boolean = true,
+    val translateKey: Boolean = false
 )

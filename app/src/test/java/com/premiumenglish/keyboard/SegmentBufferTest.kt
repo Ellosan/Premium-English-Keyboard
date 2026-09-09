@@ -6,8 +6,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Covers the typing loop: what ends up in the field after each keystroke, and
- * what happens when it is taken back.
+ * Covers the typing loop: what ends up in the field as you type, what the
+ * Translate key does to it, and what happens when it is taken back.
  */
 class SegmentBufferTest {
 
@@ -15,13 +15,15 @@ class SegmentBufferTest {
     private class FakeField : TextTarget {
         val text = StringBuilder()
 
-        override fun replace(before: Int, text: String) {
+        override fun replace(before: Int, after: Int, text: String) {
             this.text.setLength((this.text.length - before).coerceAtLeast(0))
             this.text.append(text)
         }
 
         override fun textBeforeCursor(count: Int): CharSequence =
             text.substring((text.length - count).coerceAtLeast(0))
+
+        override fun textAfterCursor(count: Int): CharSequence = ""
 
         override fun sendBackspace() {
             if (text.isNotEmpty()) text.setLength(text.length - 1)
@@ -33,60 +35,106 @@ class SegmentBufferTest {
     private val buffer = SegmentBuffer(field) { settings }
 
     private fun type(text: String) = text.forEach { buffer.type(it) }
+    private fun goLive() { settings = settings.copy(live = true) }
 
     // ------------------------------------------------------------------ typing
 
     @Test
-    fun `typing key by key lands in the same place as one full translation`() {
-        val message = "hello. how are you? i think you look great today. can you help me?"
-        type(message)
-        assertEquals(
-            PremiumEnglish.translate(message, settings.options, finished = true),
-            field.text.toString()
-        )
+    fun `typing leaves your words alone until you ask`() {
+        type("i think you are nice")
+        assertEquals("i think you are nice", field.text.toString())
     }
 
     @Test
-    fun `the word being typed is left alone until it is finished`() {
-        type("i think you are nic")
-        assertEquals("Methinks thou art nic", field.text.toString())
-        buffer.type('e')
-        buffer.type(' ')
-        assertEquals("Methinks thou art pleasant ", field.text.toString())
+    fun `the translate key does the whole message at once`() {
+        type("hello. i think you are nice")
+        assertTrue(buffer.translateNow())
+        assertEquals("Hail. Methinks thou art pleasant", field.text.toString())
     }
 
     @Test
-    fun `a new sentence starts a new segment`() {
-        type("hello. you are late")
-        assertEquals("Hail. Thou art late", field.text.toString())
+    fun `typing carries on after a translation, and translates only the new part`() {
+        type("hello")
+        buffer.translateNow()
+        type(" i think you are nice")
+        buffer.translateNow()
+        assertEquals("Hail Methinks thou art pleasant", field.text.toString())
+    }
+
+    @Test
+    fun `pressing translate twice does not translate the output again`() {
+        type("hello")
+        assertTrue(buffer.translateNow())
+        val once = field.text.toString()
+        assertFalse("the second press should do nothing", buffer.translateNow())
+        assertEquals(once, field.text.toString())
+    }
+
+    @Test
+    fun `translating an empty message does nothing`() {
+        assertFalse(buffer.translateNow())
+        assertEquals("", field.text.toString())
+    }
+
+    @Test
+    fun `text already in the field can be translated`() {
+        // Nothing was typed on this keyboard: the field was filled elsewhere.
+        field.text.append("you are late")
+        assertTrue(buffer.translateNow())
+        assertEquals("Thou art tardy", field.text.toString())
+    }
+
+    @Test
+    fun `backspace deletes what was typed`() {
+        type("hello")
+        repeat(2) { buffer.backspace() }
+        assertEquals("hel", field.text.toString())
+        assertEquals("hel", buffer.source)
+    }
+
+    @Test
+    fun `the preview shows what the translate key would produce`() {
+        assertEquals("", buffer.preview())
+        type("i think you are nice")
+        assertEquals("Methinks thou art pleasant", buffer.preview())
+        // The field itself is untouched until the key is pressed.
+        assertEquals("i think you are nice", field.text.toString())
+    }
+
+    @Test
+    fun `the preview is exactly what the key delivers`() {
+        type("hello. i think you look great today")
+        val promised = buffer.preview()
+        buffer.translateNow()
+        assertEquals(promised, field.text.toString())
     }
 
     // ------------------------------------------------------------------ taking it back
 
     @Test
-    fun `backspace rewinds the words that were typed, not the ornate ones`() {
+    fun `revert puts the typed message back after a translation`() {
         type("i think you are nice")
-        repeat(6) { buffer.backspace() }
-        assertEquals("i think you ar", buffer.source)
-        assertEquals(PremiumEnglish.translateLive("i think you ar", settings.options), field.text.toString())
-    }
-
-    @Test
-    fun `backspacing past the start clears the field`() {
-        type("hello")
-        repeat(20) { buffer.backspace() }
-        assertEquals("", field.text.toString())
-    }
-
-    @Test
-    fun `revert puts back exactly what was typed`() {
-        type("i think you are nice")
-        buffer.revert()
+        buffer.translateNow()
+        assertEquals("Methinks thou art pleasant", field.text.toString())
+        assertTrue(buffer.revert())
         assertEquals("i think you are nice", field.text.toString())
-        assertTrue("the segment should be finished with", buffer.isEmpty)
-        // And typing carries on from there without disturbing it.
-        type(" hello")
-        assertEquals("i think you are nice hello", field.text.toString())
+    }
+
+    @Test
+    fun `a reverted message can be translated again`() {
+        type("hello")
+        buffer.translateNow()
+        buffer.revert()
+        assertEquals("hello", field.text.toString())
+        assertTrue(buffer.translateNow())
+        assertEquals("Hail", field.text.toString())
+    }
+
+    @Test
+    fun `there is nothing to revert on an untouched field`() {
+        assertFalse(buffer.canRevert)
+        type("hi")
+        assertTrue(buffer.canRevert)
     }
 
     // ------------------------------------------------------------------ conveniences
@@ -94,21 +142,9 @@ class SegmentBufferTest {
     @Test
     fun `two spaces after a word become a full stop`() {
         type("hello  ")
+        assertEquals("hello. ", field.text.toString())
+        buffer.translateNow()
         assertEquals("Hail. ", field.text.toString())
-    }
-
-    @Test
-    fun `two spaces do nothing when there is no word in front of them`() {
-        type(" ")
-        buffer.type(' ')
-        assertEquals("  ", field.text.toString())
-    }
-
-    @Test
-    fun `the double space full stop can be turned off`() {
-        settings = settings.copy(doubleSpacePeriod = false)
-        type("hello  ")
-        assertEquals("Hail  ", field.text.toString())
     }
 
     @Test
@@ -118,32 +154,69 @@ class SegmentBufferTest {
         assertFalse(buffer.atSentenceStart())
         type(". ")
         assertTrue(buffer.atSentenceStart())
-        type("you")
-        assertFalse(buffer.atSentenceStart())
     }
-
-    // ------------------------------------------------------------------ switched off
 
     @Test
     fun `with translation off it is an ordinary keyboard`() {
         settings = settings.copy(translate = false)
         type("i think you are nice")
         assertEquals("i think you are nice", field.text.toString())
-        buffer.backspace()
-        assertEquals("i think you are nic", field.text.toString())
+        assertFalse(buffer.translateNow())
     }
 
     @Test
-    fun `the double space full stop still works with translation off`() {
-        settings = settings.copy(translate = false)
-        type("hello  ")
-        assertEquals("hello. ", field.text.toString())
+    fun `emoji and held symbols go in unharmed`() {
+        type("hello ")
+        buffer.type("👑")
+        buffer.translateNow()
+        assertEquals("Hail 👑", field.text.toString())
     }
 
-    // ------------------------------------------------------------------ tiers
+    // ------------------------------------------------------------------ live mode
 
     @Test
-    fun `changing tier mid-sentence redraws what is already there`() {
+    fun `live mode translates as you type`() {
+        goLive()
+        val message = "hello. how are you? i think you look great today."
+        type(message)
+        assertEquals(
+            PremiumEnglish.translate(message, settings.options, finished = true),
+            field.text.toString()
+        )
+    }
+
+    @Test
+    fun `live mode leaves the word being typed alone until it is finished`() {
+        goLive()
+        type("i think you are nic")
+        assertEquals("Methinks thou art nic", field.text.toString())
+        type("e ")
+        assertEquals("Methinks thou art pleasant ", field.text.toString())
+    }
+
+    @Test
+    fun `live mode backspace rewinds the typed words, not the ornate ones`() {
+        goLive()
+        type("i think you are nice")
+        repeat(6) { buffer.backspace() }
+        assertEquals("i think you ar", buffer.source)
+        assertEquals(
+            PremiumEnglish.translateLive("i think you ar", settings.options),
+            field.text.toString()
+        )
+    }
+
+    @Test
+    fun `live mode revert puts back exactly what was typed`() {
+        goLive()
+        type("i think you are nice")
+        assertTrue(buffer.revert())
+        assertEquals("i think you are nice", field.text.toString())
+    }
+
+    @Test
+    fun `changing tier mid-sentence redraws live text`() {
+        goLive()
         type("hello there ")
         assertEquals("Hail there ", field.text.toString())
         settings = settings.copy(options = PremiumOptions(PremiumEnglish.TIER_REFINED))
@@ -152,9 +225,9 @@ class SegmentBufferTest {
     }
 
     @Test
-    fun `emoji and held symbols go in unharmed`() {
-        type("hello ")
-        buffer.type("👑")
-        assertEquals("Hail 👑", field.text.toString())
+    fun `live mode still turns two spaces into a full stop`() {
+        goLive()
+        type("hello  ")
+        assertEquals("Hail. ", field.text.toString())
     }
 }

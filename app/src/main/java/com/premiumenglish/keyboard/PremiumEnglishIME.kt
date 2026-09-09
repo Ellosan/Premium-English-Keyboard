@@ -28,10 +28,10 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
 
     /** Writes the buffer's edits into the field, keeping the cursor in step. */
     private val target = object : TextTarget {
-        override fun replace(before: Int, text: String) {
+        override fun replace(before: Int, after: Int, text: String) {
             val ic = currentInputConnection ?: return
             ic.beginBatchEdit()
-            if (before > 0) ic.deleteSurroundingText(before, 0)
+            if (before > 0 || after > 0) ic.deleteSurroundingText(before, after)
             if (text.isNotEmpty()) ic.commitText(text, 1)
             ic.endBatchEdit()
             cursor = cursor - before + text.length
@@ -41,13 +41,21 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
         override fun textBeforeCursor(count: Int): CharSequence =
             currentInputConnection?.getTextBeforeCursor(count, 0) ?: ""
 
+        override fun textAfterCursor(count: Int): CharSequence =
+            currentInputConnection?.getTextAfterCursor(count, 0) ?: ""
+
         override fun sendBackspace() {
             sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL)
         }
     }
 
     private val buffer = SegmentBuffer(target) {
-        SegmentSettings(prefs.options(), translationActive(), prefs.doubleSpacePeriod)
+        SegmentSettings(
+            prefs.options(),
+            translationActive(),
+            prefs.liveTranslate,
+            prefs.doubleSpacePeriod
+        )
     }
 
     // ------------------------------------------------------------------ lifecycle
@@ -153,9 +161,21 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
         afterInput()
     }
 
+    /**
+     * The status bar always shows the half the field is not showing: what you
+     * typed while the field is ornate, and what the Translate key would make of
+     * it while the field is still plain.
+     */
     private fun afterInput() {
-        panel?.setSource(buffer.source)
+        val status = if (prefs.liveTranslate) buffer.source else buffer.preview()
+        panel?.setSource(status, buffer.canRevert)
         updateAutoShift()
+    }
+
+    /** The Translate key: turns the message into Premium English, all at once. */
+    override fun onTranslate() {
+        buffer.translateNow()
+        afterInput()
     }
 
     // ------------------------------------------------------------------ status bar
@@ -168,22 +188,21 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
         }
         panel?.setTier(prefs.tier)
         // Re-translate what is already on screen at the new tier.
-        if (!buffer.isEmpty) {
-            buffer.retranslate()
-            panel?.setSource(buffer.source)
-        }
+        buffer.retranslate()
+        afterInput()
     }
 
     override fun onToggleTranslation() {
         prefs.autoTranslate = !prefs.autoTranslate
         // Leave the premium text standing, but stop tracking it.
         if (!prefs.autoTranslate) resetSegment()
+        panel?.setLayoutOptions(prefs.layout())
         panel?.setTranslating(translationActive())
     }
 
     override fun onRevert() {
         buffer.revert()
-        panel?.setSource("")
+        afterInput()
     }
 
     override fun onOpenSettings() {
@@ -200,7 +219,7 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
     // ------------------------------------------------------------------ helpers
 
     private fun resetSegment() {
-        buffer.close()
+        buffer.forget()
         expectedCursor = -1
         panel?.setSource("")
     }

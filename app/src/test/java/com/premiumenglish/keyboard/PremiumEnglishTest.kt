@@ -107,8 +107,8 @@ class PremiumEnglishTest {
 
     @Test
     fun `spelling rules survive the archaic endings`() {
-        assertEquals("Thou criest", courtly("you cry"))
-        assertEquals("He teacheth", courtly("he teaches"))
+        assertEquals("Thou studiest", courtly("you study"))
+        assertEquals("He passeth", courtly("he passes"))
         assertEquals("Thou singest", courtly("you sing"))
         assertEquals("Thou cherishest", courtly("you love"))
     }
@@ -129,7 +129,7 @@ class PremiumEnglishTest {
     @Test
     fun `-eth reaches subjects that are not pronouns`() {
         assertEquals("He playeth football", courtly("he plays football"))
-        assertEquals("My mother worketh", courtly("my mother works"))
+        assertEquals("My mother toileth", courtly("my mother works"))
         assertEquals("He lieth", courtly("he lies"))
     }
 
@@ -142,7 +142,7 @@ class PremiumEnglishTest {
     @Test
     fun `most stays a superlative`() {
         assertEquals("She said the most fair matter", courtly("she said the most beautiful thing"))
-        assertEquals("The water is exceeding cold", courtly("the water is very cold"))
+        assertEquals("The water is exceeding chill", courtly("the water is very cold"))
     }
 
     // ------------------------------------------------------------------ sovereign
@@ -165,8 +165,8 @@ class PremiumEnglishTest {
 
     @Test
     fun `contractions are expanded before translation`() {
-        assertEquals("Thou art late", courtly("you're late"))
-        assertEquals("I am late", courtly("i'm late"))
+        assertEquals("Thou art tardy", courtly("you're late"))
+        assertEquals("I am tardy", courtly("i'm late"))
     }
 
     @Test
