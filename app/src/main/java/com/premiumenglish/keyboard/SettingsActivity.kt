@@ -2,16 +2,19 @@ package com.premiumenglish.keyboard
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
+import android.view.View
 import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.SeekBar
 import android.widget.Switch
@@ -44,6 +47,7 @@ class SettingsActivity : Activity(), KeyboardPanel.Listener {
             (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).showInputMethodPicker()
         }
 
+        setUpEdition()
         setUpTiers()
         setUpSwitches()
         setUpSize()
@@ -51,6 +55,40 @@ class SettingsActivity : Activity(), KeyboardPanel.Listener {
     }
 
     // ------------------------------------------------------------------ sections
+
+    /**
+     * In the free edition the premium tiers are shown but not selectable, with
+     * the card above explaining where they are. They are marked rather than
+     * hidden: it should be clear what the app can do, not merely what this
+     * build of it does.
+     */
+    private fun setUpEdition() {
+        findViewById<TextView>(R.id.edition_line).text =
+            getString(R.string.edition_line, Edition.NAME, BuildConfig.VERSION_NAME)
+
+        if (Edition.IS_PRO) return
+
+        findViewById<View>(R.id.upgrade_card).visibility = View.VISIBLE
+        findViewById<Button>(R.id.upgrade_button).setOnClickListener { openStore() }
+
+        val locked = getString(R.string.tier_locked)
+        for (id in intArrayOf(R.id.tier_courtly, R.id.tier_sovereign)) {
+            findViewById<RadioButton>(id).apply {
+                isEnabled = false
+                alpha = 0.45f
+                text = "$text · $locked"
+            }
+        }
+        findViewById<Switch>(R.id.switch_olde).apply {
+            isEnabled = false
+            alpha = 0.45f
+        }
+    }
+
+    private fun openStore() {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Edition.STORE_URL))
+        if (intent.resolveActivity(packageManager) != null) startActivity(intent)
+    }
 
     private fun setUpTiers() {
         val tiers = findViewById<RadioGroup>(R.id.tier_group)

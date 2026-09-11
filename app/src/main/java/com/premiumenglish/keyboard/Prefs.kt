@@ -12,9 +12,14 @@ class Prefs(context: Context) {
     // ---------------------------------------------------------------- translation
 
     var tier: Int
-        get() = sp.getInt(KEY_TIER, PremiumEnglish.TIER_COURTLY)
-            .coerceIn(PremiumEnglish.TIER_REFINED, PremiumEnglish.TIER_SOVEREIGN)
-        set(value) = sp.edit().putInt(KEY_TIER, value).apply()
+        get() = sp.getInt(KEY_TIER, DEFAULT_TIER)
+            .coerceIn(PremiumEnglish.TIER_REFINED, Edition.MAX_TIER)
+        set(value) = sp.edit()
+            .putInt(KEY_TIER, value.coerceIn(PremiumEnglish.TIER_REFINED, Edition.MAX_TIER))
+            .apply()
+
+    /** True when there is more than one tier to choose between. */
+    val canChooseTier: Boolean get() = Edition.MAX_TIER > PremiumEnglish.TIER_REFINED
 
     /** Master switch: off turns this into an ordinary, regrettably modern keyboard. */
     var autoTranslate: Boolean
@@ -92,6 +97,9 @@ class Prefs(context: Context) {
         private const val KEY_PREVIEW = "key_preview"
         private const val KEY_AUTO_CAPS = "auto_capitalize"
         private const val KEY_DOUBLE_SPACE = "double_space_period"
+
+        /** Courtly where the edition allows it, Refined where it does not. */
+        val DEFAULT_TIER = minOf(PremiumEnglish.TIER_COURTLY, Edition.MAX_TIER)
 
         val SIZE_SCALES = floatArrayOf(0.78f, 0.89f, 1.0f, 1.15f, 1.32f)
         val SIZE_NAMES = arrayOf("Compact", "Small", "Standard", "Large", "Huge")

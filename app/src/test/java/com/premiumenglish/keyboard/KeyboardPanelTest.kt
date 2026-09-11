@@ -191,8 +191,9 @@ class KeyboardPanelTest {
 
     @Test
     fun `the status bar offers the tier and a way back to what you typed`() {
+        panel.setTier(PremiumEnglish.TIER_REFINED)
         panel.setSource("i think you are nice")
-        findKey("Courtly")!!.performClick()
+        findKey(Prefs.tierName(PremiumEnglish.TIER_REFINED))!!.performClick()
         assertEquals(1, recorder.tierCycles)
         findKey("↺")!!.performClick()
         assertEquals(1, recorder.reverts)
@@ -225,7 +226,11 @@ class KeyboardPanelTest {
     fun `the settings screen opens with a working keyboard in it`() {
         val activity = Robolectric.buildActivity(SettingsActivity::class.java).setup().get()
         val output = activity.findViewById<TextView>(R.id.sample_output)
-        assertTrue("the sample should be translated", output.text.contains("thou", true))
+        assertTrue("the sample should be translated", output.text.isNotEmpty())
+        assertTrue(
+            "the sample should not come back as it went in",
+            output.text.toString() != activity.getString(R.string.sample_default)
+        )
         val holder = activity.findViewById<ViewGroup>(R.id.preview_keyboard)
         assertTrue("the preview keyboard should be attached", holder.childCount == 1)
     }

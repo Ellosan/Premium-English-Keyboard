@@ -31,7 +31,7 @@ class SegmentBufferTest {
     }
 
     private val field = FakeField()
-    private var settings = SegmentSettings(PremiumOptions(PremiumEnglish.TIER_COURTLY))
+    private var settings = SegmentSettings(PremiumOptions(PremiumEnglish.TIER_REFINED))
     private val buffer = SegmentBuffer(field) { settings }
 
     private fun type(text: String) = text.forEach { buffer.type(it) }
@@ -49,7 +49,7 @@ class SegmentBufferTest {
     fun `the translate key does the whole message at once`() {
         type("hello. i think you are nice")
         assertTrue(buffer.translateNow())
-        assertEquals("Hail. Methinks thou art pleasant", field.text.toString())
+        assertEquals("Greetings. I think you are agreeable", field.text.toString())
     }
 
     @Test
@@ -58,7 +58,7 @@ class SegmentBufferTest {
         buffer.translateNow()
         type(" i think you are nice")
         buffer.translateNow()
-        assertEquals("Hail Methinks thou art pleasant", field.text.toString())
+        assertEquals("Greetings I think you are agreeable", field.text.toString())
     }
 
     @Test
@@ -79,9 +79,9 @@ class SegmentBufferTest {
     @Test
     fun `text already in the field can be translated`() {
         // Nothing was typed on this keyboard: the field was filled elsewhere.
-        field.text.append("you are late")
+        field.text.append("hello there")
         assertTrue(buffer.translateNow())
-        assertEquals("Thou art tardy", field.text.toString())
+        assertEquals("Greetings there", field.text.toString())
     }
 
     @Test
@@ -96,7 +96,7 @@ class SegmentBufferTest {
     fun `the preview shows what the translate key would produce`() {
         assertEquals("", buffer.preview())
         type("i think you are nice")
-        assertEquals("Methinks thou art pleasant", buffer.preview())
+        assertEquals("I think you are agreeable", buffer.preview())
         // The field itself is untouched until the key is pressed.
         assertEquals("i think you are nice", field.text.toString())
     }
@@ -115,7 +115,7 @@ class SegmentBufferTest {
     fun `revert puts the typed message back after a translation`() {
         type("i think you are nice")
         buffer.translateNow()
-        assertEquals("Methinks thou art pleasant", field.text.toString())
+        assertEquals("I think you are agreeable", field.text.toString())
         assertTrue(buffer.revert())
         assertEquals("i think you are nice", field.text.toString())
     }
@@ -127,7 +127,7 @@ class SegmentBufferTest {
         buffer.revert()
         assertEquals("hello", field.text.toString())
         assertTrue(buffer.translateNow())
-        assertEquals("Hail", field.text.toString())
+        assertEquals("Greetings", field.text.toString())
     }
 
     @Test
@@ -144,7 +144,7 @@ class SegmentBufferTest {
         type("hello  ")
         assertEquals("hello. ", field.text.toString())
         buffer.translateNow()
-        assertEquals("Hail. ", field.text.toString())
+        assertEquals("Greetings. ", field.text.toString())
     }
 
     @Test
@@ -169,7 +169,7 @@ class SegmentBufferTest {
         type("hello ")
         buffer.type("👑")
         buffer.translateNow()
-        assertEquals("Hail 👑", field.text.toString())
+        assertEquals("Greetings 👑", field.text.toString())
     }
 
     // ------------------------------------------------------------------ live mode
@@ -189,9 +189,9 @@ class SegmentBufferTest {
     fun `live mode leaves the word being typed alone until it is finished`() {
         goLive()
         type("i think you are nic")
-        assertEquals("Methinks thou art nic", field.text.toString())
+        assertEquals("I think you are nic", field.text.toString())
         type("e ")
-        assertEquals("Methinks thou art pleasant ", field.text.toString())
+        assertEquals("I think you are agreeable ", field.text.toString())
     }
 
     @Test
@@ -215,11 +215,10 @@ class SegmentBufferTest {
     }
 
     @Test
-    fun `changing tier mid-sentence redraws live text`() {
+    fun `retranslating live text leaves it where it was`() {
         goLive()
         type("hello there ")
-        assertEquals("Hail there ", field.text.toString())
-        settings = settings.copy(options = PremiumOptions(PremiumEnglish.TIER_REFINED))
+        assertEquals("Greetings there ", field.text.toString())
         buffer.retranslate()
         assertEquals("Greetings there ", field.text.toString())
     }
@@ -228,6 +227,6 @@ class SegmentBufferTest {
     fun `live mode still turns two spaces into a full stop`() {
         goLive()
         type("hello  ")
-        assertEquals("Hail. ", field.text.toString())
+        assertEquals("Greetings. ", field.text.toString())
     }
 }

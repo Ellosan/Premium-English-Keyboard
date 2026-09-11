@@ -18,25 +18,10 @@ package com.premiumenglish.keyboard
  */
 object Lexicon {
 
-    private fun pairs(spec: String): Map<String, String> {
-        val out = LinkedHashMap<String, String>()
-        for (raw in spec.trimIndent().lineSequence()) {
-            val line = raw.trim()
-            if (line.isEmpty() || line.startsWith("#")) continue
-            val i = line.indexOf('=')
-            if (i <= 0) continue
-            out[line.substring(0, i).trim()] = line.substring(i + 1).trim()
-        }
-        return out
-    }
-
-    private fun words(spec: String): Set<String> =
-        spec.trim().split(Regex("[\\s,]+")).filter { it.isNotEmpty() }.toHashSet()
-
     // ---------------------------------------------------------------- contractions
 
     /** Expanded before anything else touches the text. */
-    val CONTRACTIONS: Map<String, String> = pairs(
+    val CONTRACTIONS: Map<String, String> = LexiconText.pairs(
         """
         i'm = i am
         i've = i have
@@ -98,7 +83,7 @@ object Lexicon {
     // ---------------------------------------------------------------- phrases
 
     /** Multi-word phrases, written as they appear after contractions expand. */
-    private val PHRASES_1 = pairs(
+    private val PHRASES_1 = LexiconText.pairs(
         """
         thank you very much = I thank you most heartily
         thanks a lot = I thank you most heartily
@@ -152,69 +137,11 @@ object Lexicon {
         """
     )
 
-    private val PHRASES_2 = pairs(
-        """
-        good morning = good morrow
-        i think = methinks
-        i thought = methought
-        it seems = meseems
-        i do not think so = methinks not
-        have to = must needs
-        has to = must needs
-        got to = must needs
-        need to = must needs
-        hold on = hold, I pray
-        oh my god = by my troth
-        no way = nay, never
-        happy birthday = joyous natal day
-        check out = behold
-        look at = behold
-        figure out = divine
-        good afternoon = good day to you
-        good evening = good even
-        good night = good even
-        how are you = how dost thou fare
-        how is it going = how goes it
-        what is up = how fares it with thee
-        see you later = until we meet anon
-        see you soon = until we meet anon
-        talk to you later = we shall speak anon
-        i love you = I do adore thee
-        i miss you = I pine for thee
-        are you kidding me = dost thou jest
-        just kidding = I do but jest
-        you all = ye
-        you guys = ye gentles
-        you two = ye both
-        thank you very much = I thank thee most heartily
-        thank you = I thank thee
-        excuse me = I pray thee, pardon
-        i am sorry = I crave thy pardon
-        shut up = hold thy tongue
-        hold your tongue = hold thy tongue
-        take care = fare thee well
-        good luck = fortune favour thee
-        let me know = send me word by swift rider
-        no problem = 'tis nothing
-        """
-    )
 
-    private val PHRASES_3 = pairs(
-        """
-        good morning = a most gracious morrow unto thee
-        i do not know = I know not
-        i do not care = I care not
-        what is up = what tidings, gentle soul
-        see you later = until the wheel of fortune turns us together again
-        thank you = my everlasting thanks unto thee
-        no problem = think nothing on it
-        right now = upon this very instant, and not a moment beyond
-        """
-    )
 
     // ---------------------------------------------------------------- single words
 
-    private val WORDS_1 = pairs(
+    private val WORDS_1 = LexiconText.pairs(
         """
         hello = greetings
         hi = greetings
@@ -342,217 +269,7 @@ object Lexicon {
         """
     )
 
-    private val WORDS_2 = pairs(
-        """
-        hello = hail
-        hi = hail
-        hey = hark
-        greetings = hail and well met
-        bye = fare thee well
-        goodbye = fare thee well
-        farewell = fare thee well
-        yes = aye
-        indeed = verily
-        yeah = aye
-        yep = aye
-        no = nay
-        nope = nay
-        please = prithee
-        sorry = I crave pardon
-        perhaps = mayhap
-        maybe = mayhap
-        truly = verily
-        assuredly = in sooth
-        very = exceeding
-        quickly = apace
-        shortly = anon
-        soon = anon
-        before = ere
-        ever = e'er
-        never = ne'er
-        over = o'er
-        often = oft
-        again = anew
-        today = this day
-        tonight = this night
-        tomorrow = the morrow
-        yesterday = the day past
-        morning = morn
-        evening = eventide
-        week = sennight
-        minute = moment
-        second = instant
-        nevertheless = howbeit
-        in any case = howsoever
-        between = betwixt
-        wait = tarry
-        motor car = carriage
-        # people and places
-        man = fellow
-        woman = lady
-        person = soul
-        persons = souls
-        people = folk
-        companion = good fellow
-        companions = good fellows
-        boss = liege
-        guys = gentles
-        doctor = physician
-        teacher = tutor
-        student = pupil
-        police = the watch
-        restaurant = tavern
-        bar = alehouse
-        shop = merchant stall
-        store = merchant stall
-        hotel = inn
-        room = chamber
-        bathroom = privy
-        toilet = privy
-        kitchen = scullery
-        city = burgh
-        town = hamlet
-        country = realm
-        road = thoroughfare
-        residence = abode
-        household = hearth
-        funds = coin
-        # things
-        telephone = speaking-glass
-        computer = thinking-engine
-        laptop = thinking-engine
-        internet = the great web
-        email = swift missive
-        message = missive
-        letter = missive
-        book = tome
-        movie = moving picture
-        music = minstrelsy
-        song = ballad
-        refreshment = fare
-        dinner = supper
-        beer = ale
-        coffee = bitter brew
-        clothes = raiment
-        shoes = boots
-        bag = satchel
-        dog = hound
-        horse = steed
-        bird = fowl
-        gift = boon
-        deal = bargain
-        price = sum
-        expensive = dear
-        cheap = paltry
-        # qualities
-        fine = goodly
-        splendid = most excellent
-        magnificent = wondrous
-        remarkable = marvellous
-        admirable = passing fair
-        unfortunate = ill
-        deplorable = wretched
-        agreeable = pleasant
-        exquisite = fair
-        handsome = comely
-        ugly = foul
-        peculiar = passing strange
-        curious = passing strange
-        considerable = great
-        immense = vast
-        modest = wee
-        slight = wee
-        weary = sore weary
-        delighted = merry
-        downcast = forlorn
-        displeased = wroth
-        apprehensive = afeard
-        famished = nigh starved
-        parched = athirst
-        indisposed = ailing
-        unhinged = moon-touched
-        learned = wise
-        unlettered = witless
-        old = ancient
-        young = youthful
-        dead = perished
-        # verbs
-        obtain = procure
-        bestow = grant
-        dispatch = convey
-        craft = fashion
-        construct = raise up
-        mend = repair
-        assist = aid
-        endeavour = strive
-        employ = make use of
-        reveal = disclose
-        commence = set forth upon
-        tarry = bide
-        converse = discourse
-        inquire = beseech
-        desire = covet
-        require = have need of
-        adore = cherish
-        detest = loathe
-        consider = deem
-        observe = behold
-        perceive = espy
-        attend = hearken
-        hear = hark
-        think = consider
-        depart = take leave
-        reside = dwell
-        eat = sup
-        drink = quaff
-        sleep = slumber
-        walk = perambulate
-        fight = do battle
-        kill = slay
-        die = perish
-        win = prevail
-        lose = forfeit
-        find = discover
-        read = peruse
-        write = pen
-        throw = hurl
-        carry = bear
-        # abstract
-        difficulty = quandary
-        account = tale
-        position = vocation
-        labour = toil
-        gathering = revel
-        diversion = merriment
-        contest = sport
-        """
-    )
 
-    private val WORDS_3 = pairs(
-        """
-        aye = aye, verily
-        nay = nay, and thrice nay
-        hail = hail and most hearty greeting
-        prithee = I most humbly prithee
-        mayhap = mayhap, as the fates allow
-        verily = verily and in sooth
-        great = passing great
-        vast = most vast and boundless
-        wondrous = wondrous strange and marvellous
-        merry = blithe and merry
-        forlorn = sore forlorn
-        coin = coin of the realm
-        ale = good brown ale
-        hound = faithful hound
-        steed = noble steed
-        tome = weighty tome
-        missive = sealed missive
-        thinking-engine = enchanted thinking-engine
-        speaking-glass = far-speaking glass
-        quandary = quandary most vexing
-        good fellow = fellow most true
-        """
-    )
 
 
     /**
@@ -565,345 +282,19 @@ object Lexicon {
      * lookup in the engine means one entry here also covers the plural, the
      * past tense and the -ing form.
      */
-    private val WORDS_2B = pairs(
-        """
-        # ---- people ----
-        men = fellows
-        women = ladies
-        boy = lad
-        boys = lads
-        girl = lass
-        girls = lasses
-        father = sire
-        dad = sire
-        mom = mother
-        mum = mother
-        family = kin
-        wife = goodwife
-        husband = goodman
-        enemy = foe
-        soldier = man-at-arms
-        soldiers = men-at-arms
-        thief = knave
-        liar = dissembler
-        idiot = clod-pate
-        moron = dolt
-        coward = craven
-        hero = champion
-        leader = chieftain
-        worker = labourer
-        farmer = husbandman
-        guard = sentinel
-        crowd = throng
-        group = company
-        team = fellowship
-        army = host
-        sailor = mariner
-        lawyer = advocate
-        judge = magistrate
-        priest = parson
-        citizen = subject
-        servant = servant
-        neighbor = neighbour
-        # ---- the body ----
-        head = pate
-        face = visage
-        hair = locks
-        stomach = belly
-        belly = belly
-        leg = limb
-        body = frame
-        brain = wits
-        # ---- the heart ----
-        anger = wrath
-        joy = mirth
-        happiness = mirth
-        sadness = sorrow
-        fear = dread
-        courage = valour
-        bravery = valour
-        hatred = enmity
-        worry = disquiet
-        stress = vexation
-        trouble = travail
-        peace = repose
-        mood = humour
-        feeling = sentiment
-        memory = remembrance
-        mistake = error
-        truth = sooth
-        advice = counsel
-        joke = jest
-        promise = troth
-        # ---- time ----
-        afternoon = afternoon
-        sometimes = betimes
-        early = betimes
-        late = tardy
-        finally = at last
-        immediately = straightway
-        suddenly = of a sudden
-        recently = of late
-        usually = commonly
-        forever = evermore
-        century = age
-        until = till
-        since = sith
-        moment = instant
-        in due course = anon
-        # ---- places ----
-        window = casement
-        bed = couch
-        chair = seat
-        table = board
-        street = thoroughfare
-        village = village
-        area = quarter
-        building = edifice
-        church = chapel
-        prison = dungeon
-        hospital = infirmary
-        university = academy
-        office = counting-house
-        bank = counting-house
-        farm = farmstead
-        forest = wood
-        river = stream
-        ocean = main
-        beach = strand
-        mountain = mount
-        field = meadow
-        sky = firmament
-        storm = tempest
-        fire = flame
-        metal = iron
-        # ---- things ----
-        meal = repast
-        breakfast = break-fast
-        lunch = midday repast
-        meat = flesh
-        cup = goblet
-        plate = trencher
-        knife = blade
-        sword = blade
-        gun = pistol
-        weapon = arms
-        armour = mail
-        armor = mail
-        shield = buckler
-        shirt = doublet
-        coat = cloak
-        jacket = jerkin
-        gown = gown
-        paper = parchment
-        pen = quill
-        map = chart
-        box = chest
-        tool = implement
-        machine = engine
-        ship = vessel
-        boat = vessel
-        bus = common carriage
-        train = iron horse
-        plane = flying machine
-        bike = velocipede
-        app = contrivance
-        video = moving picture
-        film = moving picture
-        photo = likeness
-        picture = likeness
-        camera = likeness-taker
-        toy = plaything
-        medicine = physic
-        poison = venom
-        # ---- creatures ----
-        pig = swine
-        snake = serpent
-        cows = kine
-        # ---- describing things ----
-        wide = broad
-        heavy = weighty
-        strong = stout
-        weak = feeble
-        fast = swift
-        quick = swift
-        hot = sultry
-        cold = chill
-        dirty = filthy
-        poor = beggarly
-        easy = simple
-        difficult = arduous
-        important = weighty
-        dangerous = perilous
-        lazy = idle
-        careful = heedful
-        careless = heedless
-        lucky = fortunate
-        unlucky = ill-starred
-        brave = valiant
-        healthy = hale
-        gentle = gentle
-        rude = uncivil
-        polite = courteous
-        honest = true
-        clever = shrewd
-        serious = grave
-        quiet = hushed
-        loud = clamorous
-        dark = murky
-        normal = common
-        special = rare
-        fat = corpulent
-        thin = lean
-        fake = counterfeit
-        real = veritable
-        whole = entire
-        terrible = dreadful
-        horrible = hideous
-        disgusting = loathsome
-        tasty = savoury
-        delicious = savoury
-        tiny = wee
-        # ---- how and how much ----
-        quite = passing
-        almost = well-nigh
-        nearly = well-nigh
-        enough = enow
-        only = merely
-        even = e'en
-        several = divers
-        various = sundry
-        different = divers
-        same = selfsame
-        away = hence
-        forward = forth
-        slowly = at leisure
-        honestly = in good faith
-        seriously = in earnest
-        exactly = precisely
-        especially = chiefly
-        why = wherefore
-        although = albeit
-        though = albeit
-        in all likelihood = belike
-        plainly = manifestly
-        for the reason that = for that
-        # ---- doing things ----
-        cheat = cozen
-        steal = filch
-        rob = plunder
-        hide = conceal
-        escape = flee
-        chase = pursue
-        attack = assail
-        beat = vanquish
-        destroy = lay waste
-        cut = cleave
-        push = thrust
-        pull = draw
-        lift = raise
-        drop = let fall
-        hit = strike
-        jump = leap
-        travel = journey
-        move = stir
-        rest = repose
-        wake = rouse
-        cry = weep
-        call = summon
-        shout = cry out
-        dance = caper
-        argue = quarrel
-        agree = accord
-        allow = suffer
-        promise = vow
-        forgive = pardon
-        praise = extol
-        complain = grumble
-        doubt = misdoubt
-        decide = resolve
-        prepare = make ready
-        understand = comprehend
-        teach = instruct
-        change = alter
-        create = fashion
-        happen = befall
-        marry = wed
-        hug = embrace
-        heal = cure
-        rescue = deliver
-        protect = shield
-        wash = cleanse
-        clean = cleanse
-        dress = attire
-        fear = dread
-        # ---- exclaiming ----
-        wow = marry
-        oops = alack
-        ouch = alas
-        alright = very well
-        cheers = good health
-        congratulations = joy be with thee
-        damn = a plague upon it
-        crap = fie
-        ugh = fie
-        oh = O
-        # ---- colour ----
-        black = sable
-        white = milk-white
-        red = crimson
-        blue = azure
-        green = verdant
-        yellow = golden
-        grey = ashen
-        gray = ashen
-        brown = russet
-        # ---- gaps found by checking the lexicon against common English ----
-        child = babe
-        flower = bloom
-        hat = cap
-        shoe = boot
-        clock = timepiece
-        answer = reply
-        information = tidings
-        history = chronicle
-        reason = cause
-        education = schooling
-        nation = realm
-        college = academy
-        community = commonwealth
-        government = the crown
-        president = sovereign
-        control = mastery
-        development = growth
-        effort = endeavour
-        language = tongue
-        process = course
-        result = outcome
-        level = degree
-        power = might
-        force = might
-        role = part
-        new = new-fangled
-        large = great
-        high = lofty
-        clear = plain
-        human = mortal
-        bright = radiant
-        sharp = keen
-        slow = sluggish
-        close = shut fast
-        """
-    )
 
-    val PHRASES: Map<Int, Map<String, String>> = mapOf(1 to PHRASES_1, 2 to PHRASES_2, 3 to PHRASES_3)
-    val WORDS: Map<Int, Map<String, String>> =
-        mapOf(1 to WORDS_1, 2 to WORDS_2 + WORDS_2B, 3 to WORDS_3)
+    /**
+     * Tier one ships with the app. The Courtly and Sovereign tables belong to
+     * the Pro edition and are supplied by [Edition]; in the free edition they
+     * are simply not there, which is what makes the free build free of them.
+     */
+    val PHRASES: Map<Int, Map<String, String>> = mapOf(1 to PHRASES_1) + Edition.phrases
+    val WORDS: Map<Int, Map<String, String>> = mapOf(1 to WORDS_1) + Edition.words
 
     // ---------------------------------------------------------------- grammar data
 
     /** Base verbs we are confident enough about to conjugate. */
-    val VERBS: Set<String> = words(
+    val VERBS: Set<String> = LexiconText.words(
         """
         abide accept ache act add admire admit advise agree aim allow answer
         appear apply argue arrive ask attack attend avoid awake bake bear beat
@@ -953,7 +344,7 @@ object Lexicon {
     )
 
     /** Irregular second-person-singular forms, used after "thou". */
-    val IRREGULAR_2SG: Map<String, String> = pairs(
+    val IRREGULAR_2SG: Map<String, String> = LexiconText.pairs(
         """
         am = art
         are = art
@@ -993,7 +384,7 @@ object Lexicon {
     )
 
     /** Irregular third-person-singular forms. */
-    val IRREGULAR_3SG: Map<String, String> = pairs(
+    val IRREGULAR_3SG: Map<String, String> = LexiconText.pairs(
         """
         has = hath
         does = doth
@@ -1007,7 +398,7 @@ object Lexicon {
     )
 
     /** Words that may sit between "thou" and the verb it governs. */
-    val INTERPOSED_ADVERBS: Set<String> = words(
+    val INTERPOSED_ADVERBS: Set<String> = LexiconText.words(
         """
         not never ne'er ever e'er always oft often truly verily really surely
         sore most still yet but merely only also likewise then now presently
@@ -1016,7 +407,7 @@ object Lexicon {
     )
 
     /** Subjects that put the -eth ending on the verb that follows. */
-    val THIRD_SINGULAR_SUBJECTS: Set<String> = words(
+    val THIRD_SINGULAR_SUBJECTS: Set<String> = LexiconText.words(
         """
         he she it who which one everyone someone anyone nobody everybody
         somebody anybody god fate fortune heaven lord lady king queen knight
@@ -1027,10 +418,10 @@ object Lexicon {
     )
 
     /** Subjects that never take -eth or -est. */
-    val PLURAL_SUBJECTS: Set<String> = words("i we they ye you these those folk people")
+    val PLURAL_SUBJECTS: Set<String> = LexiconText.words("i we they ye you these those folk people")
 
     /** After one of these, a word ending in -s is almost certainly a plural noun. */
-    val DETERMINERS: Set<String> = words(
+    val DETERMINERS: Set<String> = LexiconText.words(
         """
         the a an my thy thine your his her its our their these those some many
         few several all both each every any no two three four five ten other
@@ -1040,7 +431,7 @@ object Lexicon {
     )
 
     /** Words ending in -s that are never third-person verbs. */
-    val NEVER_ETH: Set<String> = words(
+    val NEVER_ETH: Set<String> = LexiconText.words(
         """
         is was has does as his hers its us this thus always perhaps sometimes
         news yes plus less unless
@@ -1052,7 +443,7 @@ object Lexicon {
      * back when the subject in front of them is not clearly singular, so
      * "he plays" still becomes "he playeth" while "good times" is left alone.
      */
-    val NOUN_LIKE_S: Set<String> = words(
+    val NOUN_LIKE_S: Set<String> = LexiconText.words(
         """
         things matters times ways means eyes hands days years words results
         answers questions places faces kids lives games plans forms lights
@@ -1065,7 +456,7 @@ object Lexicon {
     )
 
     /** Irregular past tenses, which the base-verb list cannot reach. */
-    val PAST_VERBS: Set<String> = words(
+    val PAST_VERBS: Set<String> = LexiconText.words(
         """
         saw told gave took made said knew thought heard found brought sent met
         left felt kept held put set came went got had was were did began broke
@@ -1076,7 +467,7 @@ object Lexicon {
     )
 
     /** Irregular past tenses, mapped back to the verb they came from. */
-    val PAST_TO_BASE: Map<String, String> = pairs(
+    val PAST_TO_BASE: Map<String, String> = LexiconText.pairs(
         """
         bought = buy
         brought = bring
@@ -1140,7 +531,7 @@ object Lexicon {
     )
 
     /** The past tense of the archaic verbs the lexicon hands out. */
-    val IRREGULAR_PAST: Map<String, String> = pairs(
+    val IRREGULAR_PAST: Map<String, String> = LexiconText.pairs(
         """
         weep = wept
         bear = bore
@@ -1178,7 +569,7 @@ object Lexicon {
     )
 
     /** Prepositions after which "you" is an object, and so becomes "thee". */
-    val PREPOSITIONS: Set<String> = words(
+    val PREPOSITIONS: Set<String> = LexiconText.words(
         """
         to for with at of from on in by about like unto upon near before after
         than between betwixt among amongst without within toward towards
@@ -1187,7 +578,7 @@ object Lexicon {
     )
 
     /** Auxiliaries after which "you" is still the subject, and so stays "thou". */
-    val AUXILIARIES: Set<String> = words(
+    val AUXILIARIES: Set<String> = LexiconText.words(
         """
         do does did are were is was will would shall should can could may might
         must have has had dost doth art wilt shalt canst
@@ -1197,52 +588,13 @@ object Lexicon {
     // ---------------------------------------------------------------- ceremony
 
     /** Sentence openers, added only when a sentence is finished. */
-    val OPENERS: Map<Int, List<String>> = mapOf(
-        1 to listOf("Indeed,", "Truly,", "I must say,"),
-        2 to listOf("Verily,", "Prithee,", "Forsooth,", "Hark,", "Marry,", "In sooth,"),
-        3 to listOf(
-            "Hark!", "Lo!", "By my troth,", "Forsooth and verily,",
-            "Attend me now,", "Let it be known throughout the land,"
-        )
-    )
+    val OPENERS: Map<Int, List<String>> =
+        mapOf(1 to listOf("Indeed,", "Truly,", "I must say,")) + Edition.openers
 
     /** Sentence closers, added only when a sentence is finished. */
-    val CLOSERS: Map<Int, List<String>> = mapOf(
-        1 to listOf(", to be sure", ", I should think"),
-        2 to listOf(", i' faith", ", by my troth", ", I do declare", ", and there an end"),
-        3 to listOf(
-            ", and may the heavens bear witness", ", as I live and breathe",
-            ", upon mine honour", ", and so it shall be recorded",
-            ", though the four winds contend against it"
-        )
-    )
+    val CLOSERS: Map<Int, List<String>> =
+        mapOf(1 to listOf(", to be sure", ", I should think")) + Edition.closers
 
-    /** Faux-antique respellings, offered at the Sovereign tier. */
-    val OLDE_SPELLINGS: Map<String, String> = pairs(
-        """
-        old = olde
-        ancient = auncient
-        shop = shoppe
-        magic = magick
-        music = musick
-        public = publick
-        logic = logick
-        good = goode
-        done = donne
-        gone = gonne
-        tale = tayle
-        night = nyght
-        light = lyght
-        right = ryght
-        quite = quyte
-        town = towne
-        word = worde
-        world = worlde
-        friend = friende
-        house = housse
-        book = booke
-        king = kyng
-        wine = wyne
-        """
-    )
+    /** Faux-antique respellings, a Sovereign feature and so a Pro one. */
+    val OLDE_SPELLINGS: Map<String, String> = Edition.oldeSpellings
 }

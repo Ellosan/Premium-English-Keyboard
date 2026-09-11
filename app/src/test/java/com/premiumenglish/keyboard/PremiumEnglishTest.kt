@@ -8,30 +8,14 @@ import org.junit.Test
 class PremiumEnglishTest {
 
     private val refined = PremiumOptions(PremiumEnglish.TIER_REFINED)
-    private val courtly = PremiumOptions(PremiumEnglish.TIER_COURTLY)
-    private val sovereign = PremiumOptions(PremiumEnglish.TIER_SOVEREIGN)
 
-    private fun courtly(text: String) = PremiumEnglish.translate(text, courtly)
-    private fun sovereign(text: String) = PremiumEnglish.translate(text, sovereign)
+    private fun refined(text: String) = PremiumEnglish.translate(text, refined)
 
     // ------------------------------------------------------------------ vocabulary
 
     @Test
     fun `refined tier lifts the register without archaic pronouns`() {
         assertEquals("Greetings, how are you?", PremiumEnglish.translate("hello, how are you?", refined))
-    }
-
-    @Test
-    fun `tiers stack, so a word can climb through all three`() {
-        assertEquals("Greetings", PremiumEnglish.translate("hello", refined))
-        assertEquals("Hail", PremiumEnglish.translate("hello", courtly))
-        assertEquals("Hail and most hearty greeting", PremiumEnglish.translate("hello", sovereign))
-    }
-
-    @Test
-    fun `phrases beat the individual words inside them`() {
-        assertEquals("I thank thee most heartily", courtly("thank you very much"))
-        assertEquals("Methinks so", courtly("i think so"))
     }
 
     @Test
@@ -64,150 +48,45 @@ class PremiumEnglishTest {
 
     // ------------------------------------------------------------------ pronouns
 
-    @Test
-    fun `you is thou as a subject and thee as an object`() {
-        assertEquals("Thou art wise", courtly("you are smart"))
-        assertEquals("I will convey thee a missive", courtly("i will send you a message"))
-    }
-
-    @Test
-    fun `possessives take thy, or thine before a vowel`() {
-        assertEquals("Thy hound", courtly("your dog"))
-        assertEquals("Thine abode", courtly("your house"))
-    }
-
     // ------------------------------------------------------------------ agreement
 
-    @Test
-    fun `thou puts the -est ending on its verb`() {
-        assertEquals("Thou knowest the way", courtly("you know the way"))
-        assertEquals("Thou perambulatest apace", courtly("you walk quickly"))
-    }
-
-    @Test
-    fun `an inverted auxiliary carries the marking instead of the verb`() {
-        assertEquals("Dost thou know the way?", courtly("do you know the way?"))
-        assertEquals("Canst thou aid me?", courtly("can you help me?"))
-    }
-
-    @Test
-    fun `third person singular takes -eth`() {
-        assertEquals("He runneth", courtly("he runs"))
-        assertEquals("She hath a hound", courtly("she has a dog"))
-        assertEquals("He seemeth so", courtly("he seems so"))
-    }
-
-    @Test
-    fun `plural nouns ending in s are left alone`() {
-        assertEquals("The matters I procure", courtly("the things i get"))
-        assertEquals("My companions are delighted", refinedPlural())
-    }
-
-    private fun refinedPlural() = PremiumEnglish.translate("my friends are happy", refined)
-
-    @Test
-    fun `spelling rules survive the archaic endings`() {
-        assertEquals("Thou studiest", courtly("you study"))
-        assertEquals("He passeth", courtly("he passes"))
-        assertEquals("Thou singest", courtly("you sing"))
-        assertEquals("Thou cherishest", courtly("you love"))
-    }
-
-    @Test
-    fun `you before a finite auxiliary is a subject`() {
-        // "believe" is a verb, but "you" belongs to the clause after it.
-        assertEquals("I can not believe thou didst that", courtly("i can't believe you did that"))
-        assertEquals("If thou hast need of aid", courtly("if you need help"))
-    }
-
-    @Test
-    fun `a coordinated pronoun takes its case from the governing word`() {
-        assertEquals("This is for thee and me", courtly("this is for you and me"))
-        assertEquals("Grant it to me and thee", courtly("give it to me and you"))
-    }
-
-    @Test
-    fun `-eth reaches subjects that are not pronouns`() {
-        assertEquals("He playeth football", courtly("he plays football"))
-        assertEquals("My mother toileth", courtly("my mother works"))
-        assertEquals("He lieth", courtly("he lies"))
-    }
-
-    @Test
-    fun `plural nouns are still spared`() {
-        assertEquals("Goodly times", courtly("good times"))
-        assertEquals("The matters I procure", courtly("the things i get"))
-    }
-
-    @Test
-    fun `most stays a superlative`() {
-        assertEquals("She said the most fair matter", courtly("she said the most beautiful thing"))
-        assertEquals("The water is exceeding chill", courtly("the water is very cold"))
-    }
-
     // ------------------------------------------------------------------ sovereign
-
-    @Test
-    fun `sovereign tier drops the propped-up auxiliary`() {
-        assertEquals("I know not what thou covetest", sovereign("i don't know what you want"))
-        assertEquals("Knowest thou the way?", sovereign("do you know the way?"))
-    }
-
-    @Test
-    fun `olde spellings are opt-in`() {
-        val plain = PremiumOptions(PremiumEnglish.TIER_SOVEREIGN)
-        val olde = PremiumOptions(PremiumEnglish.TIER_SOVEREIGN, oldeSpelling = true)
-        assertEquals("The light", PremiumEnglish.translate("the light", plain))
-        assertEquals("Ye lyght", PremiumEnglish.translate("the light", olde))
-    }
 
     // ------------------------------------------------------------------ mechanics
 
     @Test
     fun `contractions are expanded before translation`() {
-        assertEquals("Thou art tardy", courtly("you're late"))
-        assertEquals("I am tardy", courtly("i'm late"))
-    }
-
-    @Test
-    fun `articles follow the word that replaced the old one`() {
-        assertEquals("An ale", courtly("a beer"))
+        assertEquals("You are late", refined("you're late"))
+        assertEquals("I am late", refined("i'm late"))
     }
 
     @Test
     fun `capitalisation is preserved, and shouting stays shouted`() {
-        assertEquals("Hail", courtly("Hello"))
-        assertEquals("HAIL", courtly("HELLO"))
-        assertEquals("VERY WELL", courtly("OK"))
+        assertEquals("Greetings", refined("Hello"))
+        assertEquals("GREETINGS", refined("HELLO"))
+        assertEquals("VERY WELL", refined("OK"))
     }
 
     @Test
     fun `whitespace and punctuation come back unchanged`() {
-        assertEquals("Hail ", courtly("hello "))
-        assertEquals("  Hail", courtly("  hello"))
-        assertEquals("Hail... Nay!", courtly("hello... no!"))
+        assertEquals("Greetings ", refined("hello "))
+        assertEquals("  Greetings", refined("  hello"))
+        assertEquals("Greetings... No!", refined("hello... no!"))
     }
 
     @Test
     fun `blank input is returned untouched`() {
-        assertEquals("", courtly(""))
-        assertEquals("   ", courtly("   "))
+        assertEquals("", refined(""))
+        assertEquals("   ", refined("   "))
     }
 
     // ------------------------------------------------------------------ live typing
 
     @Test
-    fun `the word under the thumb is left alone until it is finished`() {
-        assertEquals("I thin", PremiumEnglish.translateLive("i thin", courtly))
-        assertEquals("Methinks ", PremiumEnglish.translateLive("i think ", courtly))
-        assertEquals("Methinks thou art l", PremiumEnglish.translateLive("i think you are l", courtly))
-    }
-
-    @Test
     fun `live typing never loses the trailing space the user typed`() {
         for (n in 1.."i think you are nice".length) {
             val typed = "i think you are nice".substring(0, n)
-            val out = PremiumEnglish.translateLive(typed, courtly)
+            val out = PremiumEnglish.translateLive(typed, refined)
             assertEquals(
                 "trailing space mismatch for \"$typed\"",
                 typed.endsWith(" "),
@@ -220,19 +99,30 @@ class PremiumEnglishTest {
 
     @Test
     fun `flourishes appear only on finished sentences`() {
-        val opts = PremiumOptions(PremiumEnglish.TIER_SOVEREIGN, flourish = true)
-        val unfinished = PremiumEnglish.translate("he runs", opts, finished = false)
-        val finished = PremiumEnglish.translate("he runs.", opts, finished = true)
-        assertEquals("He runneth", unfinished)
-        assertTrue("expected a flourish, got: $finished", finished.length > "He runneth.".length)
+        val opts = PremiumOptions(PremiumEnglish.TIER_REFINED, flourish = true)
+        val sentences = listOf("he runs", "she is here", "they left", "it is done", "we arrived")
+
+        // Unfinished sentences are never decorated.
+        for (sentence in sentences) {
+            val plain = PremiumEnglish.translate(sentence, opts, finished = false)
+            assertEquals(PremiumEnglish.translate(sentence, opts.copy(flourish = false)), plain)
+        }
+
+        // Finished ones sometimes are — which one is decided by a hash of the
+        // sentence, so check that it happens at all rather than to any one.
+        val decorated = sentences.count { sentence ->
+            val finished = PremiumEnglish.translate("$sentence.", opts, finished = true)
+            finished.length > PremiumEnglish.translate("$sentence.", opts.copy(flourish = false)).length
+        }
+        assertTrue("expected at least one flourish across $sentences", decorated > 0)
     }
 
     @Test
     fun `the same sentence always draws the same flourish`() {
-        val opts = PremiumOptions(PremiumEnglish.TIER_SOVEREIGN, flourish = true)
-        val first = PremiumEnglish.translate("he runs.", opts, finished = true)
+        val opts = PremiumOptions(PremiumEnglish.TIER_REFINED, flourish = true)
+        val first = PremiumEnglish.translate("she is here.", opts, finished = true)
         repeat(20) {
-            assertEquals(first, PremiumEnglish.translate("he runs.", opts, finished = true))
+            assertEquals(first, PremiumEnglish.translate("she is here.", opts, finished = true))
         }
     }
 

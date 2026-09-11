@@ -102,7 +102,9 @@ object PremiumEnglish {
     @JvmOverloads
     fun translate(input: String, options: PremiumOptions = PremiumOptions(), finished: Boolean = false): String {
         if (input.isBlank()) return input
-        val tier = options.tier.coerceIn(TIER_REFINED, TIER_SOVEREIGN)
+        // The ceiling is the edition's, not the caller's. In the free edition
+        // there is nothing above Refined to ask for.
+        val tier = options.tier.coerceIn(TIER_REFINED, Edition.MAX_TIER)
 
         val toks = tokenize(input)
         expandContractions(toks)

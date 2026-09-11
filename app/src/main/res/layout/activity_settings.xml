@@ -28,6 +28,41 @@
             android:textSize="14sp"
             android:fontFamily="serif" />
 
+        <!-- Upgrade, in the free edition only -->
+        <LinearLayout
+            android:id="@+id/upgrade_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical"
+            android:background="@drawable/card_background"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/upgrade_title"
+                android:textColor="@color/accent"
+                android:textSize="19sp"
+                android:fontFamily="serif" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/upgrade_body"
+                android:textColor="@color/body_text"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/upgrade_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/upgrade_button" />
+        </LinearLayout>
+
         <!-- Setup -->
         <TextView
             style="@style/SectionHeading"
@@ -215,6 +250,16 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/edition_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
+            android:textColor="@color/muted_text"
+            android:textSize="12sp" />
 
     </LinearLayout>
 </ScrollView>

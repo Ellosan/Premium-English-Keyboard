@@ -8,6 +8,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 
 /**
  * The keyboard service: the Android half of the keyboard.
@@ -181,7 +182,12 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
     // ------------------------------------------------------------------ status bar
 
     override fun onCycleTier() {
-        prefs.tier = if (prefs.tier >= PremiumEnglish.TIER_SOVEREIGN) {
+        if (!prefs.canChooseTier) {
+            // Only one tier in this edition; say where the others are.
+            Toast.makeText(this, R.string.tier_locked_toast, Toast.LENGTH_SHORT).show()
+            return
+        }
+        prefs.tier = if (prefs.tier >= Edition.MAX_TIER) {
             PremiumEnglish.TIER_REFINED
         } else {
             prefs.tier + 1

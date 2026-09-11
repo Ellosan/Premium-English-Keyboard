@@ -94,7 +94,7 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
     private var layer = LAYER_LETTERS
     private var shift = SHIFT_OFF
     private var translating = true
-    private var tier = PremiumEnglish.TIER_COURTLY
+    private var tier = Prefs.DEFAULT_TIER
     private var options = KeyboardLayoutOptions()
 
     private val column = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }

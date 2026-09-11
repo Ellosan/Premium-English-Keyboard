@@ -15,3 +15,14 @@ captures/
 .idea/
 *.iml
 .DS_Store
+
+# The Pro edition's sources are not published. app/src/pro holds the Courtly
+# and Sovereign vocabulary, and app/src/testPro the tests that go with it; the
+# free edition builds without either. See docs/EDITIONS.md.
+/app/src/pro/
+/app/src/testPro/
+
+# Release signing
+keystore.properties
+*.jks
+*.keystore

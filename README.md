@@ -22,10 +22,26 @@ The bar always shows the half the field is not showing: the translation while
 you are still typing plainly, and your own plain words afterwards. **↺** takes
 a translation back, and takes it back again if you press **✦** by mistake.
 
+## Editions
+
+The keyboard is sold, as all premium things are, in tiers — and the upper two
+are the paid ones.
+
+- **Free** — the Refined tier: your writing, lifted a register. The whole
+  keyboard, and this whole repository.
+- **Pro** — adds Courtly and Sovereign: *thou* and *thee*, the *-est* and *-eth*
+  endings, several hundred more words of vocabulary, ceremonial flourishes and
+  ye olde spellings. On [itch.io](https://ellosan.itch.io/premium-english-keyboard).
+
+The free edition is not the Pro edition with its features switched off: the
+premium vocabulary is a separate source set that is not published here, so the
+free build has none of it in it. See [docs/EDITIONS.md](docs/EDITIONS.md) for
+how that is arranged and how to build each one, and
+[docs/RELEASING.md](docs/RELEASING.md) for putting them on itch.io.
+
 ## Service tiers
 
-The keyboard is sold, as all premium things are, in tiers. Tap the tier chip to
-move between them.
+Tap the tier chip to move between the tiers your edition has.
 
 | What you type | Refined | Courtly | Sovereign |
 | --- | --- | --- | --- |
@@ -107,8 +123,9 @@ The translation itself is a series of passes over a token list
 
 The vocabulary lives in
 [`Lexicon.kt`](app/src/main/java/com/premiumenglish/keyboard/Lexicon.kt) as
-plain text tables, one per tier — around 730 entries, and a translation at tier
-N applies every table up to N. The engine looks words up by their stem and puts
+plain text tables — the Refined tier here, the Courtly and Sovereign tiers in
+the Pro source set, around 730 entries between them. A translation at tier N
+applies every table up to N. The engine looks words up by their stem and puts
 the ending back on the replacement, so one entry for `dog` also covers `dogs`,
 and one for `walk` covers `walked` and `walking`; irregular pasts are listed, so
 `bought` reaches `buy` and comes back as `procured` rather than `buyed`.
@@ -124,10 +141,14 @@ other words are missing because they need no help: `time`, `hand`, `water`,
 Requires JDK 17+ and an Android SDK with platform 34.
 
 ```sh
-./gradlew assembleDebug          # app/build/outputs/apk/debug/app-debug.apk
-./gradlew testDebugUnitTest      # 63 tests
-./gradlew installDebug           # to a connected device
+./gradlew assembleFreeDebug      # app/build/outputs/apk/free/debug/
+./gradlew testFreeDebugUnitTest  # 49 tests
+./gradlew installFreeDebug       # to a connected device
 ```
+
+The Pro edition needs the private sources in `app/src/pro` (see
+[docs/EDITIONS.md](docs/EDITIONS.md)); with them in place, `assembleProDebug`
+and `testProDebugUnitTest` build and test 65.
 
 Then, on the device:
 
@@ -145,14 +166,20 @@ the ◆ key suspends it anywhere else.
 ```
 app/src/main/java/com/premiumenglish/keyboard/
     PremiumEnglish.kt      the translation engine (no Android imports)
-    Lexicon.kt             vocabulary and grammar tables, by tier
+    Lexicon.kt             the Refined vocabulary, and the grammar tables
+    LexiconText.kt         reads the plain-text tables
     SegmentBuffer.kt       the typing loop: what is typed, what ✦ replaces
     PremiumEnglishIME.kt   the input method service
     KeyboardPanel.kt       the keys, the status bar, the key preview
     SettingsActivity.kt    setup, preferences, and a live keyboard
     Prefs.kt               stored settings
-app/src/test/java/...      63 unit tests
+app/src/free/java/...      Edition.kt — what the free build can do
+app/src/test/java/...      tests that run in both editions
+app/src/testFree/java/...  what the free edition may not do
 ```
+
+`app/src/pro` and `app/src/testPro` hold the Pro edition and are not in this
+repository.
 
 The engine and the typing loop have no Android imports and run on a plain JVM.
 The keyboard view and the settings screen are covered with Robolectric, which
