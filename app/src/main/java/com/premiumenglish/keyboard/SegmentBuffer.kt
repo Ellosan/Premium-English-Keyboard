@@ -14,6 +14,9 @@ interface TextTarget {
     /** Up to [count] characters immediately after the cursor. */
     fun textAfterCursor(count: Int): CharSequence
 
+    /** The highlighted text, or null when nothing is selected. */
+    fun selectedText(): CharSequence?
+
     /** Sends a plain delete, for when the keyboard has nothing of its own to remove. */
     fun sendBackspace()
 }
@@ -141,6 +144,20 @@ class SegmentBuffer(
     fun translateNow(): Boolean {
         val current = settings()
         if (!current.translate) return false
+
+        // A selection is what the user means, if there is one. It also has to
+        // be handled separately: deleting "around the cursor" deletes around a
+        // selection, which would throw the selected text away.
+        val selected = target.selectedText()
+        if (!selected.isNullOrBlank()) {
+            val raw = selected.toString()
+            val translated = PremiumEnglish.translate(raw, current.options, finished = true)
+            // Committing with a selection live replaces it.
+            target.replace(0, 0, translated)
+            close()
+            remember(raw, translated.length)
+            return true
+        }
 
         if (pending.isNotEmpty()) {
             val raw = pending.toString()

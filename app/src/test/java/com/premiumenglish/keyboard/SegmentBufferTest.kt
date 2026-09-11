@@ -15,10 +15,23 @@ class SegmentBufferTest {
     private class FakeField : TextTarget {
         val text = StringBuilder()
 
+        /** Set to highlight a range, as an editor would. */
+        var selection: IntRange? = null
+
         override fun replace(before: Int, after: Int, text: String) {
+            val selected = selection
+            if (selected != null) {
+                // Committing over a selection replaces it, as on Android.
+                this.text.replace(selected.first, selected.last + 1, text)
+                selection = null
+                return
+            }
             this.text.setLength((this.text.length - before).coerceAtLeast(0))
             this.text.append(text)
         }
+
+        override fun selectedText(): CharSequence? =
+            selection?.let { text.substring(it.first, it.last + 1) }
 
         override fun textBeforeCursor(count: Int): CharSequence =
             text.substring((text.length - count).coerceAtLeast(0))
@@ -82,6 +95,15 @@ class SegmentBufferTest {
         field.text.append("hello there")
         assertTrue(buffer.translateNow())
         assertEquals("Greetings there", field.text.toString())
+    }
+
+    @Test
+    fun `translating with text selected translates the selection`() {
+        field.text.append("keep this: hello there :keep this")
+        field.selection = 11..21
+        assertEquals("hello there", field.selectedText())
+        assertTrue(buffer.translateNow())
+        assertEquals("keep this: Greetings there :keep this", field.text.toString())
     }
 
     @Test

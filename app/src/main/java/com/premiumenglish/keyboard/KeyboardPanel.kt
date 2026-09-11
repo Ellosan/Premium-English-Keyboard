@@ -325,6 +325,7 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
                 setMargins(dp(2), dp(2), dp(2), dp(2))
             }
             isClickable = true
+            contentDescription = describe(key)
             // The secondary character, printed small in the corner.
             if (key.secondary != null) {
                 text = key.label
@@ -396,6 +397,7 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
                 view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             }
         }
+        view.setOnClickListener { press(key) }
         view.setOnTouchListener { v, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
@@ -410,7 +412,11 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
                     v.isPressed = false
                     handler.removeCallbacks(longPress)
                     hideBubble()
-                    if (!longPressed && inside(v, event)) press(key)
+                    if (!longPressed && inside(v, event)) {
+                        // Through performClick, so that the accessibility
+                        // framework sees the press as a click.
+                        v.performClick()
+                    }
                     true
                 }
                 MotionEvent.ACTION_CANCEL -> {
@@ -467,12 +473,31 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
         }
     }
 
+    /** What a screen reader should say for a key whose face is a symbol. */
+    private fun describe(key: Key): CharSequence = when (key.kind) {
+        Kind.BACKSPACE -> context.getString(R.string.key_backspace)
+        Kind.SHIFT -> context.getString(R.string.key_shift)
+        Kind.ENTER -> context.getString(R.string.key_enter)
+        Kind.SPACE -> context.getString(R.string.key_space)
+        Kind.TRANSLATE -> context.getString(R.string.key_translate)
+        Kind.LAYER -> if (key.layer == LAYER_EMOJI) context.getString(R.string.key_emoji) else key.label
+        else -> key.label
+    }
+
     private fun displayLabel(key: Key): String {
         val out = key.output
         return if (shift != SHIFT_OFF && out.length == 1 && out[0].isLetter()) out.uppercase() else out
     }
 
-    /** Hold to delete: one press, then a steady stream. */
+    /**
+     * Hold to delete: one press, then a steady stream.
+     *
+     * Deleting happens on press rather than release, as on every other
+     * keyboard, so this cannot route through performClick the way the ordinary
+     * keys do — that would delete twice. Accessibility reaches it through the
+     * click listener below instead.
+     */
+    @SuppressLint("ClickableViewAccessibility")
     private fun attachRepeat(view: View) {
         val repeat = object : Runnable {
             override fun run() {
@@ -480,6 +505,7 @@ class KeyboardPanel(context: Context, private val listener: Listener) : FrameLay
                 handler.postDelayed(this, REPEAT_RATE_MS)
             }
         }
+        view.setOnClickListener { listener.onBackspace() }
         view.setOnTouchListener { v, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {

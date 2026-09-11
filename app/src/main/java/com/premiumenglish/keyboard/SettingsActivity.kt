@@ -1,6 +1,7 @@
 package com.premiumenglish.keyboard
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -19,6 +20,7 @@ import android.widget.RadioGroup
 import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
+import android.widget.Toast
 
 /**
  * Setup and preferences.
@@ -72,11 +74,12 @@ class SettingsActivity : Activity(), KeyboardPanel.Listener {
         findViewById<Button>(R.id.upgrade_button).setOnClickListener { openStore() }
 
         val locked = getString(R.string.tier_locked)
+
         for (id in intArrayOf(R.id.tier_courtly, R.id.tier_sovereign)) {
             findViewById<RadioButton>(id).apply {
                 isEnabled = false
                 alpha = 0.45f
-                text = "$text · $locked"
+                text = getString(R.string.tier_locked_label, text, locked)
             }
         }
         findViewById<Switch>(R.id.switch_olde).apply {
@@ -86,8 +89,14 @@ class SettingsActivity : Activity(), KeyboardPanel.Listener {
     }
 
     private fun openStore() {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Edition.STORE_URL))
-        if (intent.resolveActivity(packageManager) != null) startActivity(intent)
+        // Not resolveActivity(): from Android 11 that returns null unless the
+        // manifest declares what it may query, and the button would then do
+        // nothing at all. Try it and handle the failure instead.
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Edition.STORE_URL)))
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(this, Edition.STORE_URL, Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun setUpTiers() {

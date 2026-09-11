@@ -68,6 +68,7 @@ keyboard is expected to do:
 
 - **✦ translates** what you have typed since you last pressed it, so you can
   write and edit in plain English and elevate it when the message is finished.
+  Select some text first and it translates only the selection.
   Prefer the older behaviour, where the words rearrange themselves under your
   thumb as you type? Turn on *Translate as I type* in Settings.
 - **Size** — five steps from Compact to Huge, on a slider, with a working

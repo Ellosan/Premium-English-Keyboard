@@ -45,6 +45,9 @@ class PremiumEnglishIME : InputMethodService(), KeyboardPanel.Listener {
         override fun textAfterCursor(count: Int): CharSequence =
             currentInputConnection?.getTextAfterCursor(count, 0) ?: ""
 
+        override fun selectedText(): CharSequence? =
+            currentInputConnection?.getSelectedText(0)
+
         override fun sendBackspace() {
             sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL)
         }

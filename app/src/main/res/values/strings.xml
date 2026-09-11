@@ -11,6 +11,14 @@
 
     <string name="tier_title">Service tier</string>
     <string name="tier_locked">Pro</string>
+    <string name="tier_locked_label">%1$s · %2$s</string>
+
+    <string name="key_backspace">Backspace</string>
+    <string name="key_shift">Shift</string>
+    <string name="key_enter">Enter</string>
+    <string name="key_space">Space</string>
+    <string name="key_translate">Translate into Premium English</string>
+    <string name="key_emoji">Emoji</string>
     <string name="tier_locked_toast">Courtly and Sovereign are in Premium English Pro</string>
 
     <string name="upgrade_title">Premium English Pro</string>
