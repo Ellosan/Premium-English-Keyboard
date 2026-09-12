@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="PremiumTheme" parent="@android:style/Theme.Material">
+        <item name="android:colorBackground">@color/screen_background</item>
+        <item name="android:textColorPrimary">@color/body_text</item>
+        <item name="android:colorAccent">@color/accent</item>
+    </style>
+</resources>

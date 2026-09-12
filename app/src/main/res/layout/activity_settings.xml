@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/screen_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/headline"
+            android:textColor="@color/accent"
+            android:textSize="30sp"
+            android:fontFamily="serif" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/subhead"
+            android:textColor="@color/muted_text"
+            android:textSize="14sp"
+            android:fontFamily="serif" />
+
+        <!-- Upgrade, in the free edition only -->
+        <LinearLayout
+            android:id="@+id/upgrade_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical"
+            android:background="@drawable/card_background"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/upgrade_title"
+                android:textColor="@color/accent"
+                android:textSize="19sp"
+                android:fontFamily="serif" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/upgrade_body"
+                android:textColor="@color/body_text"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/upgrade_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/upgrade_button" />
+        </LinearLayout>
+
+        <!-- Setup -->
+        <TextView
+            style="@style/SectionHeading"
+            android:text="@string/setup_title" />
+
+        <Button
+            android:id="@+id/enable_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/enable_keyboard" />
+
+        <Button
+            android:id="@+id/choose_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/choose_keyboard" />
+
+        <!-- Tier -->
+        <TextView
+            style="@style/SectionHeading"
+            android:text="@string/tier_title" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_background"
+            android:padding="12dp">
+
+            <RadioGroup
+                android:id="@+id/tier_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/tier_refined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tier_refined"
+                    android:textColor="@color/body_text" />
+
+                <TextView
+                    style="@style/TierCaption"
+                    android:text="@string/tier_refined_desc" />
+
+                <RadioButton
+                    android:id="@+id/tier_courtly"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tier_courtly"
+                    android:textColor="@color/body_text" />
+
+                <TextView
+                    style="@style/TierCaption"
+                    android:text="@string/tier_courtly_desc" />
+
+                <RadioButton
+                    android:id="@+id/tier_sovereign"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tier_sovereign"
+                    android:textColor="@color/body_text" />
+
+                <TextView
+                    style="@style/TierCaption"
+                    android:text="@string/tier_sovereign_desc" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <!-- Size -->
+        <TextView
+            style="@style/SectionHeading"
+            android:text="@string/size_title" />
+
+        <TextView
+            android:id="@+id/size_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/body_text"
+            android:textSize="15sp" />
+
+        <SeekBar
+            android:id="@+id/size_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" />
+
+        <!-- Keyboard behaviour -->
+        <TextView
+            style="@style/SectionHeading"
+            android:text="@string/keyboard_title" />
+
+        <Switch
+            android:id="@+id/switch_number_row"
+            style="@style/OptionSwitch"
+            android:text="@string/option_number_row" />
+
+        <Switch
+            android:id="@+id/switch_auto_caps"
+            style="@style/OptionSwitch"
+            android:text="@string/option_auto_caps" />
+
+        <Switch
+            android:id="@+id/switch_double_space"
+            style="@style/OptionSwitch"
+            android:text="@string/option_double_space" />
+
+        <Switch
+            android:id="@+id/switch_key_preview"
+            style="@style/OptionSwitch"
+            android:text="@string/option_key_preview" />
+
+        <Switch
+            android:id="@+id/switch_vibrate"
+            style="@style/OptionSwitch"
+            android:text="@string/option_vibrate" />
+
+        <!-- Options -->
+        <TextView
+            style="@style/SectionHeading"
+            android:text="@string/options_title" />
+
+        <Switch
+            android:id="@+id/switch_auto"
+            style="@style/OptionSwitch"
+            android:text="@string/option_auto" />
+
+        <Switch
+            android:id="@+id/switch_live"
+            style="@style/OptionSwitch"
+            android:text="@string/option_live" />
+
+        <Switch
+            android:id="@+id/switch_flourish"
+            style="@style/OptionSwitch"
+            android:text="@string/option_flourish" />
+
+        <Switch
+            android:id="@+id/switch_olde"
+            style="@style/OptionSwitch"
+            android:text="@string/option_olde" />
+
+        <!-- Try it -->
+        <TextView
+            style="@style/SectionHeading"
+            android:text="@string/try_title" />
+
+        <EditText
+            android:id="@+id/sample_input"
+            android:importantForAutofill="no"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/try_hint"
+            android:inputType="textMultiLine|textCapSentences"
+            android:minLines="2"
+            android:gravity="top"
+            android:textColor="@color/body_text"
+            android:textColorHint="@color/muted_text" />
+
+        <TextView
+            android:id="@+id/sample_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/try_note"
+            android:textColor="@color/muted_text"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/sample_output"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/card_background"
+            android:padding="14dp"
+            android:textColor="@color/accent"
+            android:textSize="17sp"
+            android:fontFamily="serif"
+            android:textStyle="italic" />
+
+        <FrameLayout
+            android:id="@+id/preview_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/edition_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
+            android:textColor="@color/muted_text"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+</ScrollView>

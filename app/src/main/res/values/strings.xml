@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="subtype_english">English (Premium)</string>
+
+    <string name="headline">Premium English</string>
+    <string name="subhead">A keyboard of distinction. Type as you always have; it comes out considerably better.</string>
+
+    <string name="setup_title">Setup</string>
+    <string name="enable_keyboard">1 · Enable the keyboard</string>
+    <string name="choose_keyboard">2 · Select it as your input method</string>
+
+    <string name="tier_title">Service tier</string>
+    <string name="tier_locked">Pro</string>
+    <string name="tier_locked_label">%1$s · %2$s</string>
+
+    <string name="key_backspace">Backspace</string>
+    <string name="key_shift">Shift</string>
+    <string name="key_enter">Enter</string>
+    <string name="key_space">Space</string>
+    <string name="key_translate">Translate into Premium English</string>
+    <string name="key_emoji">Emoji</string>
+    <string name="tier_locked_toast">Courtly and Sovereign are in Premium English Pro</string>
+
+    <string name="upgrade_title">Premium English Pro</string>
+    <string name="upgrade_body">The free edition writes in Refined English. Pro adds the Courtly and Sovereign tiers — thou and thee, the ‑est and ‑eth endings, several hundred more words of Shakespearean vocabulary, ceremonial flourishes and ye olde spellings.</string>
+    <string name="upgrade_button">Get Pro on itch.io</string>
+    <string name="edition_line">%1$s edition · version %2$s</string>
+    <string name="tier_refined">Refined</string>
+    <string name="tier_refined_desc">A lift in register. Your pronouns are left in peace.</string>
+    <string name="tier_courtly">Courtly</string>
+    <string name="tier_courtly_desc">Thou and thee, -est and -eth, and the full archaic wardrobe.</string>
+    <string name="tier_sovereign">Sovereign</string>
+    <string name="tier_sovereign_desc">Everything above, plus dropped auxiliaries and considerable pomp.</string>
+
+    <string name="size_title">Keyboard size</string>
+    <string name="size_value">Size: %1$s</string>
+
+    <string name="keyboard_title">Keyboard</string>
+    <string name="option_number_row">Number row</string>
+    <string name="option_vibrate">Vibrate on keypress</string>
+    <string name="option_key_preview">Show the key you pressed</string>
+    <string name="option_auto_caps">Capitalise the start of sentences</string>
+    <string name="option_double_space">Double-space inserts a full stop</string>
+
+    <string name="options_title">Translation</string>
+    <string name="option_auto">Premium English on</string>
+    <string name="option_live">Translate as I type (instead of on the ✦ key)</string>
+    <string name="option_flourish">Ceremonial flourishes at the end of a sentence</string>
+    <string name="option_olde">Ye olde spellings (Sovereign only)</string>
+
+    <string name="try_title">Try it</string>
+    <string name="try_note">This is the real keyboard. Type something, then tap ✦ to translate it. Hold a letter for the digit or symbol printed on it.</string>
+    <string name="try_hint">Type something modern…</string>
+    <string name="sample_default">hello, how are you? i think you look great today.</string>
+</resources>
